@@ -365,7 +365,9 @@ if (!Element.prototype.matches) {
 
 		// Form Submission
 		disableSubmit: false,
-		onSubmit: function () {}
+
+		// Custom Events
+		emitEvents: true
 
 	};
 
@@ -374,6 +376,11 @@ if (!Element.prototype.matches) {
 	// Methods
 	//
 
+	/**
+	 * A wrapper for Array.prototype.forEach() for non-arrays
+	 * @param  {Array-like} arr      The array-like object
+	 * @param  {Function}   callback The callback to run
+	 */
 	var forEach = function (arr, callback) {
 		Array.prototype.forEach.call(arr, callback);
 	};
@@ -397,6 +404,22 @@ if (!Element.prototype.matches) {
 			}
 		}));
 		return merged;
+	};
+
+	/**
+	 * Emit a custom event
+	 * @param  {String} type    The event type
+	 * @param  {Object} options The settings object
+	 * @param  {Node}   anchor  The anchor element
+	 * @param  {Node}   toggle  The toggle element
+	 */
+	var emitEvent = function (elem, type, details) {
+		if (typeof window.CustomEvent !== 'function') return;
+		var event = new CustomEvent(type, {
+			bubbles: true,
+			detail: details || {}
+		});
+		elem.dispatchEvent(event);
 	};
 
 	/**
@@ -589,6 +612,13 @@ if (!Element.prototype.matches) {
 		// Accessibility improvement
 		field.setAttribute('aria-describedby', error.id);
 
+		// Emit custom event
+		if (settings.emitEvents) {
+			emitEvent(field, 'bouncerShowError', {
+				errors: errors
+			});
+		}
+
 	};
 
 	var removeError = function (field, settings) {
@@ -603,6 +633,11 @@ if (!Element.prototype.matches) {
 		// Remove error and a11y from the field
 		field.classList.remove(settings.fieldClass);
 		field.removeAttribute('aria-describedby');
+
+		// Emit custom event
+		if (settings.emitEvents) {
+			emitEvent(field, 'bouncerRemoveError');
+		}
 
 	};
 
@@ -701,11 +736,14 @@ if (!Element.prototype.matches) {
 				return;
 			}
 
-			// Otherwise, submit
-			if (settings.disableSubmit) {
-				settings.onSubmit(event.target);
-			} else {
+			// Otherwise, submit if not disabled
+			if (!settings.disableSubmit) {
 				event.target.submit();
+			}
+
+			// Emit custom event
+			if (settings.emitEvents) {
+				emitEvent(event.target, 'bouncerFormValid');
 			}
 
 		};
@@ -722,6 +760,13 @@ if (!Element.prototype.matches) {
 
 			// Remove novalidate attribute
 			removeNoValidate(selector);
+
+			// Emit custom event
+			if (settings.emitEvents) {
+				emitEvent(document, 'bouncerDestroyed', {
+					settings: settings
+				});
+			}
 
 			// Reset settings
 			settings = null;
@@ -740,6 +785,13 @@ if (!Element.prototype.matches) {
 			document.addEventListener('blur', blurHandler, true);
 			document.addEventListener('input', inputHandler, false);
 			document.addEventListener('submit', submitHandler, false);
+
+			// Emit custom event
+			if (settings.emitEvents) {
+				emitEvent(document, 'bouncerInitialized', {
+					settings: settings
+				});
+			}
 
 		};
 
