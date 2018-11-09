@@ -1,5 +1,5 @@
 /*!
- * bouncer v1.0.1: A lightweight form validation script that augments native HTML5 form validation elements and attributes.
+ * bouncer v1.0.2: A lightweight form validation script that augments native HTML5 form validation elements and attributes.
  * (c) 2018 Chris Ferdinandi
  * MIT License
  * http://github.com/cferdinandi/bouncer
@@ -481,7 +481,7 @@ if (!Element.prototype.matches) {
 
 		// Check if there's a pattern to match
 		var pattern = field.getAttribute('pattern') || settings.patterns[field.type];
-		if (!pattern) return false;
+		if (!pattern || field.value.length < 1) return false;
 
 		// Validate the pattern
 		return !(new RegExp(pattern).test(field.value));
@@ -489,6 +489,9 @@ if (!Element.prototype.matches) {
 	};
 
 	var outOfRange = function (field) {
+
+		// Make sure field has value
+		if (field.value.length < 1) return false;
 
 		// Check for range
 		var max = field.getAttribute('max');
@@ -503,6 +506,9 @@ if (!Element.prototype.matches) {
 	};
 
 	var wrongLength = function (field) {
+
+		// Make sure field has value
+		if (field.value.length < 1) return false;
 
 		// Check for min/max length
 		var max = field.getAttribute('maxlength');
@@ -727,6 +733,7 @@ if (!Element.prototype.matches) {
 			// Validate each field
 			var errors = Array.prototype.filter.call(event.target.elements, (function (field) {
 				var validate = publicAPIs.validate(field);
+				console.log('validate', field, validate);
 				return validate && !validate.valid;
 			}));
 
