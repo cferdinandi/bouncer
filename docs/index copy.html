@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+		<title>Bouncer.js</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+		<!-- stylesheets -->
+		<style type="text/css">
+			body {
+				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+				font-size: 112.5%;
+				max-width: 40em;
+				margin-left: auto;
+				margin-right: auto;
+				width: 88%;
+			}
+
+			/**
+			 * Form Styles
+			 */
+			label {
+				display: block;
+				font-weight: bold;
+				margin-bottom: 0.5em;
+			}
+
+			.label-normal {
+				font-weight: normal;
+			}
+
+			.pattern {
+				color: #808080;
+				font-size: 0.8em;
+				font-weight: normal;
+			}
+
+			.supports-color .color,
+			.supports-date .date,
+			.supports-time .time,
+			.supports-month .month {
+				display: none;
+			}
+
+			input,
+			select {
+				display: inline-block;
+				font-size: 1em;
+				margin-bottom: 1em;
+				padding: 0.25em 0.5em;
+				width: 100%;
+			}
+
+			[type="checkbox"],
+			[type="radio"] {
+				margin-bottom: 0.5em;
+				width: auto;
+			}
+
+			.button {
+				background-color: #0088cc;
+				border: 1px solid #0088cc;
+				border-radius: 1px;
+				color: #ffffff;
+				display: inline-block;
+				font-size: 0.9375em;
+				font-weight: normal;
+				line-height: 1.2;
+				margin-right: 0.3125em;
+				margin-bottom: 0.3125em;
+				padding: 0.5em 0.6875em;
+				width: auto;
+			}
+
+			.button:active,
+			.button:focus,
+			.button:hover {
+				background-color: #005580;
+				border-color: #005580;
+				color: #ffffff;
+				text-decoration: none;
+			}
+
+			.button:active {
+				box-shadow: inset 0 0.15625em 0.25em rgba(0, 0, 0, 0.15), 0 1px 0.15625em rgba(0, 0, 0, 0.05);
+			}
+
+			/**
+			 * Errors
+			 */
+			.error {
+				border-color: red;
+			}
+
+			.error-message {
+				color: red;
+				font-style: italic;
+				margin-bottom: 1em;
+			}
+		</style>
+	</head>
+
+	<body>
+
+		<main id="top">
+
+			<nav>
+				<h1>Bouncer.js</h1>
+				<p><a href="https://github.com/cferdinandi/bouncer">GitHub</a></p>
+				<hr>
+			</nav>
+
+			<section>
+<form data-validate>
+
+    <div>
+        <strong>Radio Buttons</strong>
+        <label class="label-normal">
+            <input type="radio" name="radio" id="radio-1" value="radio-1" required>
+            Yes
+        </label>
+        <label class="label-normal">
+            <input type="radio" name="radio" id="radio-2" value="radio-2" required>
+            No
+        </label>
+    </div>
+
+    <input type="submit" class="button" value="Submit">
+</form>
+			</section>
+		</main>
+
+
+		<br><br>
+		<footer>
+			<hr>
+			<p><em>Want to learn how to write your own vanilla JS plugins? Get my free <a href="https://gomakethings.com/newsletter/">daily developer tips</a> and level-up as a web developer. 🚀</em></p>
+		</footer>
+
+		<!-- Javascript -->
+		<script src="dist/bouncer.polyfills.js"></script>
+		<script>
+			// // Feature Test
+			// var getInputTypeSupport = function () {
+
+			// 	'use strict';
+
+			// 	var types = {
+			// 		color: 'a',
+			// 		date: 'b',
+			// 		time: 'c',
+			// 		month: 'd',
+			// 		number: 'e'
+			// 	};
+
+			// 	var supports = {};
+
+			// 	var test = function (type, value) {
+			// 		var input = document.createElement('input');
+			// 		input.setAttribute('type', type);
+			// 		input.setAttribute('value', value);
+			// 		return (input.value !== value);
+			// 	};
+
+			// 	for (var key in types) {
+			// 		if (types.hasOwnProperty(key)) {
+			// 			if (test(key, types[key])) {
+			// 				supports[key] = true;
+			// 			}
+			// 		}
+			// 	}
+
+			// 	return supports;
+
+			// };
+
+			// var supports = getInputTypeSupport();
+			// if ('color' in supports) { document.documentElement.classList.add('supports-color'); }
+			// if ('date' in supports) { document.documentElement.classList.add('supports-date'); }
+			// if ('time' in supports) { document.documentElement.classList.add('supports-time'); }
+			// if ('month' in supports) { document.documentElement.classList.add('supports-month'); }
+
+			var bouncer = new Bouncer('form', {
+				disableSubmit: true,
+				onSubmit: function () {
+					alert('Form submitted successfully!');
+				},
+			});
+		</script>
+
+
+	</body>
+</html>

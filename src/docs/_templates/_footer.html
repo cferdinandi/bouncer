@@ -1,0 +1,65 @@
+
+			</section>
+		</main>
+
+
+		<br><br>
+		<footer>
+			<hr>
+			<p><em>Want to learn how to write your own vanilla JS plugins? Get my free <a href="https://gomakethings.com/newsletter/">daily developer tips</a> and level-up as a web developer. 🚀</em></p>
+		</footer>
+
+		<!-- Javascript -->
+		<script src="dist/bouncer.polyfills.js"></script>
+		<script>
+			// // Feature Test
+			// var getInputTypeSupport = function () {
+
+			// 	'use strict';
+
+			// 	var types = {
+			// 		color: 'a',
+			// 		date: 'b',
+			// 		time: 'c',
+			// 		month: 'd',
+			// 		number: 'e'
+			// 	};
+
+			// 	var supports = {};
+
+			// 	var test = function (type, value) {
+			// 		var input = document.createElement('input');
+			// 		input.setAttribute('type', type);
+			// 		input.setAttribute('value', value);
+			// 		return (input.value !== value);
+			// 	};
+
+			// 	for (var key in types) {
+			// 		if (types.hasOwnProperty(key)) {
+			// 			if (test(key, types[key])) {
+			// 				supports[key] = true;
+			// 			}
+			// 		}
+			// 	}
+
+			// 	return supports;
+
+			// };
+
+			// var supports = getInputTypeSupport();
+			// if ('color' in supports) { document.documentElement.classList.add('supports-color'); }
+			// if ('date' in supports) { document.documentElement.classList.add('supports-date'); }
+			// if ('time' in supports) { document.documentElement.classList.add('supports-time'); }
+			// if ('month' in supports) { document.documentElement.classList.add('supports-month'); }
+
+			var bouncer = new Bouncer('form', {
+				disableSubmit: true,
+				onSubmit: function () {
+					alert('Form submitted successfully!');
+				},
+			});
+		</script>
+
+
+	</body>
+</html>
