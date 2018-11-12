@@ -1,11 +1,11 @@
 /*!
- * bouncer v1.0.2: A lightweight form validation script that augments native HTML5 form validation elements and attributes.
+ * bouncer v1.0.3: A lightweight form validation script that augments native HTML5 form validation elements and attributes.
  * (c) 2018 Chris Ferdinandi
  * MIT License
  * http://github.com/cferdinandi/bouncer
  */
 
-
+/* jshint ignore:start */
 /*
  * classList.js: Cross-browser full element.classList implementation.
  * 1.1.20170427
@@ -246,6 +246,7 @@ if ("document" in self) {
 	}());
 
 }
+/* jshint ignore:end */
 /**
  * Element.closest() polyfill
  * https://developer.mozilla.org/en-US/docs/Web/API/Element/closest#Polyfill
@@ -473,18 +474,20 @@ if (!Element.prototype.matches) {
 
 	/**
 	 * Check if field value doesn't match a patter.
-	 * @param  {Node}   field    The field to check
+	 * @param  {HTMLFormElement}   field    The field to check
 	 * @param  {Object} settings The plugin settings
+	 * @see https://www.w3.org/TR/html51/sec-forms.html#the-pattern-attribute
 	 * @return {Boolean}         If true, there's a pattern mismatch
 	 */
 	var patternMismatch = function (field, settings) {
 
 		// Check if there's a pattern to match
-		var pattern = field.getAttribute('pattern') || settings.patterns[field.type];
+		var pattern = field.getAttribute('pattern');
+		pattern = pattern ? '^(?:' + pattern + ')$'	: settings.patterns[field.type];
 		if (!pattern || field.value.length < 1) return false;
 
 		// Validate the pattern
-		return !(new RegExp(pattern).test(field.value));
+		return !(new RegExp(pattern, 'u').test(field.value));
 
 	};
 

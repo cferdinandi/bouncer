@@ -188,10 +188,8 @@
 	var patternMismatch = function (field, settings) {
 
 		// Check if there's a pattern to match
-		var pattern = field.hasAttribute('pattern')
-			? '^(?:' + field.getAttribute('pattern') + ')$'
-			: settings.patterns[field.type];
-
+		var pattern = field.getAttribute('pattern');
+		pattern = pattern ? '^(?:' + pattern + ')$'	: settings.patterns[field.type];
 		if (!pattern || field.value.length < 1) return false;
 
 		// Validate the pattern
