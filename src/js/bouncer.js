@@ -1,8 +1,4 @@
-/*!
- * Universal Module Definition (UMD) with Constructor Boilerplate
- * (c) 2017 Chris Ferdinandi, MIT License, https://gomakethings.com
- */
- (function (root, factory) {
+(function (root, factory) {
 	if ( typeof define === 'function' && define.amd ) {
 		define([], function () {
 			return factory(root);
@@ -12,7 +8,7 @@
 	} else {
 		root.Bouncer = factory(root);
 	}
- })(typeof global !== 'undefined' ? global : typeof window !== 'undefined' ? window : this, function (window) {
+})(typeof global !== 'undefined' ? global : typeof window !== 'undefined' ? window : this, function (window) {
 
 	'use strict';
 
@@ -386,7 +382,7 @@
 		publicAPIs.validate = function (field, options) {
 
 			// Don't validate submits, buttons, file and reset inputs, and disabled and readonly fields
-			if (field.disabled || field.readOnly || field.type === 'file' || field.type === 'reset' || field.type === 'submit' || field.type === 'button') return;
+			if (!field.value || field.disabled || field.readOnly || field.type === 'file' || field.type === 'reset' || field.type === 'submit' || field.type === 'button') return;
 
 			// Local settings
 			var _settings = extend(settings, options || {});
@@ -441,6 +437,7 @@
 
 			// Validate each field
 			var errors = Array.prototype.filter.call(event.target.elements, function (field) {
+
 				var validate = publicAPIs.validate(field);
 				console.log('validate', field, validate);
 				return validate && !validate.valid;
