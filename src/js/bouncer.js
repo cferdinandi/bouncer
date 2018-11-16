@@ -186,7 +186,7 @@
 		// Check if there's a pattern to match
 		var pattern = field.getAttribute('pattern');
 		pattern = pattern ? '^(?:' + pattern + ')$'	: settings.patterns[field.type];
-		if (!pattern || field.value.length < 1) return false;
+		if (!pattern || !field.value || field.value.length < 1) return false;
 
 		// Validate the pattern
 		return !(new RegExp(pattern, 'u').test(field.value));
@@ -196,7 +196,7 @@
 	var outOfRange = function (field) {
 
 		// Make sure field has value
-		if (field.value.length < 1) return false;
+		if (!field.value || field.value.length < 1) return false;
 
 		// Check for range
 		var max = field.getAttribute('max');
@@ -213,7 +213,7 @@
 	var wrongLength = function (field) {
 
 		// Make sure field has value
-		if (field.value.length < 1) return false;
+		if (!field.value || field.value.length < 1) return false;
 
 		// Check for min/max length
 		var max = field.getAttribute('maxlength');
@@ -354,7 +354,7 @@
 
 	var removeAllErrors = function (selector, settings) {
 		forEach(document.querySelectorAll(selector), function (form) {
-			formEach(form.elements, function (field) {
+			formEach(form.querySelectorAll('input, select, textarea'), function (field) {
 				removeError(field, settings);
 			});
 		});
@@ -382,7 +382,7 @@
 		publicAPIs.validate = function (field, options) {
 
 			// Don't validate submits, buttons, file and reset inputs, and disabled and readonly fields
-			if (!field.value || field.disabled || field.readOnly || field.type === 'file' || field.type === 'reset' || field.type === 'submit' || field.type === 'button') return;
+			if (field.disabled || field.readOnly || field.type === 'file' || field.type === 'reset' || field.type === 'submit' || field.type === 'button') return;
 
 			// Local settings
 			var _settings = extend(settings, options || {});
