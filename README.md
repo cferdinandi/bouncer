@@ -291,6 +291,7 @@ Bouncer emits five custom events:
 - `bouncerShowError` is emitted on a field when an error is displayed for it.
 - `bouncerRemoveError` is emitted on a field when an error is removed from it.
 - `bouncerFormValid` is emitted on a form is successfully validated.
+- `bouncerFormInvalid` is emitted on a form that fails validation.
 - `bouncerInitialized` is emitted when bouncer initializes.
 - `bouncerDestroy` is emitted when bouncer is destroyed.
 
@@ -316,9 +317,11 @@ document.addEventListener('bouncerFormValid', function (event) {
 }, false);
 ```
 
-On the `bouncerShowError` event, you can get the specific errors using the `event.detail` object.
+The `event.detail` object holds event-specific information:
 
-The `bouncerInitialized` and `bouncerDestroyed` events include the `settings` for the instantiation under `event.detail`.
+- On the `bouncerShowError` event, it has the specific errors for the field.
+- On the `bouncerInitialized` and `bouncerDestroyed` events , it contains the `settings` for the instantiation.
+- On the `bouncerFormInvalid` event, it includes all of the fields with errors under `event.detail`.
 
 ```js
 // Detect show error events
