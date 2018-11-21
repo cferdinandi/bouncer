@@ -214,6 +214,8 @@ The patterns and messages associated with these types of errors can be customize
 
 You can add custom validation types to Bouncer beyond the four standard validations.
 
+You can see this feature in action with the *Confirm Password* field on [the demo page](http://cferdinandi.github.io/bouncer/), and view examples of custom validations in the Cookbook (*coming soon*).
+
 ### Adding custom validations
 
 Pass in a `customValidations` object as an option when instantiating a new Bouncer instance. Each property in the object is a new validation type. Each value should be a function that accepts two arguments: the field being validated and the settings for the current instantiation.
