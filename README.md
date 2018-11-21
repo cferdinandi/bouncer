@@ -77,7 +77,7 @@ And that's it, you're done. Nice work!
 
 ```html
 <script>
-	var scroll = new Bouncer('form');
+	var validate = new Bouncer('form');
 </script>
 ```
 
@@ -163,11 +163,9 @@ You can use your own validation pattern for a field with the `pattern` attribute
 <input type="text" name="tel" pattern="\d{3}[\-]\d{3}[\-]\d{4}">
 ```
 
-### Custom Error Messages
+### Custom Pattern Mismatch Error Messages
 
-That browser-native way to add a custom error message is with the `title` attribute, but... the error message ends up showing on hover whether the field has an error or not.
-
-Bouncer uses a custom data attribute&mdash;`[data-bouncer-message]`&mdash;instead.
+Show custom errors for pattern mismatches by adding the `[data-bouncer-message]` attribute to the field.
 
 ```html
 <!-- Phone number be in 555-555-5555 format -->
@@ -211,6 +209,68 @@ Bouncer captures four different types of field errors:
 The patterns and messages associated with these types of errors can be customized.
 
 
+
+## Custom Validation Types
+
+You can add custom validation types to Bouncer beyond the four standard validations.
+
+You can see this feature in action with the *Confirm Password* field on [the demo page](http://cferdinandi.github.io/bouncer/), and view examples of custom validations in the Cookbook (*coming soon*).
+
+### Adding custom validations
+
+Pass in a `customValidations` object as an option when instantiating a new Bouncer instance. Each property in the object is a new validation type. Each value should be a function that accepts two arguments: the field being validated and the settings for the current instantiation.
+
+The function should *check if the field has an error*. Return `true` if there's an error, and `false` when there's not.
+
+```js
+var validate = new Bouncer('form', {
+	customValidations: {
+		isHello: function (field) {
+
+			// Return false because there is NO error
+			if (field.value === 'hello') return false;
+
+			// Return true when there is
+			return true;
+
+		}
+	}
+});
+```
+
+### Creating custom validation error messages
+
+Add an error message for the custom validation by including the `messages` object in your options.
+
+The key should be the same as your custom validation. It's value can be a string, or a function that returns a string. Message functions can accept two arguments: the field being validated and the settings for the current instantiation.
+
+```js
+var validate = new Bouncer('form', {
+	customValidations: {
+		isHello: function (field) {
+
+			// Return false because there is NO error
+			if (field.value === 'hello') return false;
+
+			// Return true when there is
+			return true;
+
+		}
+	},
+	messages: {
+		// As a string
+		isHello: 'This field should have a value of "hello"',
+
+		// As a function
+		isHello: function () {
+			return 'This field should have a value of "hello"';
+		}
+	}
+});
+```
+
+
+
 ## Options and Settings
 
 Bouncer includes smart defaults and works right out of the box.
@@ -222,7 +282,7 @@ But if you want to customize things, it also has a robust API that provides mult
 You can customize validation patterns, error messages, and more by passing and options object into Bouncer as a second argument.
 
 ```js
-var bouncer = new Bouncer('form', {
+var validate = new Bouncer('form', {
 
 	// Classes & IDs
 	fieldClass: 'error', // Applied to fields with errors
@@ -349,7 +409,7 @@ Validate a field.
 var field = document.querySelector('#email');
 
 // Validate the field
-var bouncer = new Bouncer();
+var validate = new Bouncer();
 var isValid = bouncer.validate(field);
 
 // Returns an object
@@ -380,7 +440,7 @@ Destroys an instantiated Bouncer instance. Removes any errors from the form and 
 
 ```js
 // An bouncer instance
-var bouncer = new Bouncer('form');
+var validate = new Bouncer('form');
 
 // Destroy it
 bouncer.destroy();
