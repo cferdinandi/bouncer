@@ -44,7 +44,7 @@
 
 	<div>
 		<label for="float">Number (no decimals)</label>
-		<input type="number" step="any" name="integer" id="integer" value="" pattern="[-+]?[0-9]*" required>
+		<input type="number" step="any" name="integer" id="integer" value="" pattern="^(?:[-+]?[0-9]*)$" required>
 	</div>
 
 	<div>
@@ -54,7 +54,7 @@
 
 	<div>
 		<label for="tel">Tel <span class="pattern">123-456-7890</span></label>
-		<input type="text" name="tel" id="tel" value="" pattern="\d{3}[\-]\d{3}[\-]\d{4}" required>
+		<input type="text" name="tel" id="tel" value="" pattern="^(?:\d{3}[\-]\d{3}[\-]\d{4})$" required>
 	</div>
 
 	<div>
