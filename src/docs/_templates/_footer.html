@@ -12,57 +12,44 @@
 		<!-- Javascript -->
 		<script src="dist/bouncer.polyfills.js"></script>
 		<script>
-			// // Feature Test
-			// var getInputTypeSupport = function () {
-
-			// 	'use strict';
-
-			// 	var types = {
-			// 		color: 'a',
-			// 		date: 'b',
-			// 		time: 'c',
-			// 		month: 'd',
-			// 		number: 'e'
-			// 	};
-
-			// 	var supports = {};
-
-			// 	var test = function (type, value) {
-			// 		var input = document.createElement('input');
-			// 		input.setAttribute('type', type);
-			// 		input.setAttribute('value', value);
-			// 		return (input.value !== value);
-			// 	};
-
-			// 	for (var key in types) {
-			// 		if (types.hasOwnProperty(key)) {
-			// 			if (test(key, types[key])) {
-			// 				supports[key] = true;
-			// 			}
-			// 		}
-			// 	}
-
-			// 	return supports;
-
-			// };
-
-			// var supports = getInputTypeSupport();
-			// if ('color' in supports) { document.documentElement.classList.add('supports-color'); }
-			// if ('date' in supports) { document.documentElement.classList.add('supports-date'); }
-			// if ('time' in supports) { document.documentElement.classList.add('supports-time'); }
-			// if ('month' in supports) { document.documentElement.classList.add('supports-month'); }
-
 			var bouncer = new Bouncer('form', {
 				disableSubmit: true,
-				onSubmit: function () {
-					alert('Form submitted successfully!');
+				customValidations: {
+					valueMismatch: function (field) {
+
+						// Look for a selector for a field to compare
+						// If there isn't one, return false (no error)
+						var selector = field.getAttribute('data-bouncer-match');
+						if (!selector) return false;
+
+						// Get the field to compare
+						var otherField = field.form.querySelector(selector);
+						if (!otherField) return false;
+
+						// Compare the two field values
+						// We use a negative comparison here because if they do match, the field validates
+						// We want to return true for failures, which can be confusing
+						return otherField.value !== field.value;
+
+					}
 				},
+				messages: {
+					valueMismatch: function (field) {
+						var customMessage = field.getAttribute('data-bouncer-mismatch-message');
+						return customMessage ? customMessage : 'Please make sure the fields match.'
+					}
+				}
 			});
 
 			document.addEventListener('bouncerFormInvalid', function (event) {
 				console.log(event.detail.errors);
 				console.log(event.detail.errors[0].offsetTop);
 				window.scrollTo(0, event.detail.errors[0].offsetTop);
+			}, false);
+
+			document.addEventListener('bouncerFormValid', function () {
+				alert('Form submitted successfully!');
+				window.location.reload();
 			}, false);
 		</script>
 

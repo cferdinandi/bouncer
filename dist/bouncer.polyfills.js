@@ -329,6 +329,9 @@ if (!Element.prototype.matches) {
 			month: /^(?:(?:19|20)[0-9]{2}-(?:(?:0[1-9]|1[0-2])))$/
 		},
 
+		// Custom Validations
+		customValidations: {},
+
 		// Messages
 		messageAfterField: true,
 		messageCustom: 'data-bouncer-message',
@@ -357,7 +360,8 @@ if (!Element.prototype.matches) {
 			wrongLength: {
 				over: 'Please shorten this text to no more than {maxLength} characters. You are currently using {length} characters.',
 				under: 'Please lengthen this text to {minLength} characters or more. You are currently using {length} characters.'
-			}
+			},
+			fallback: 'There was an error with this field.'
 		},
 
 		// Form Submission
@@ -470,7 +474,7 @@ if (!Element.prototype.matches) {
 
 	/**
 	 * Check if field value doesn't match a patter.
-	 * @param  {HTMLFormElement}   field    The field to check
+	 * @param  {Node}   field    The field to check
 	 * @param  {Object} settings The plugin settings
 	 * @see https://www.w3.org/TR/html51/sec-forms.html#the-pattern-attribute
 	 * @return {Boolean}         If true, there's a pattern mismatch
@@ -487,6 +491,11 @@ if (!Element.prototype.matches) {
 
 	};
 
+	/**
+	 * Check if field value is out-of-range
+	 * @param  {Node}    field    The field to check
+	 * @return {String}           Returns 'over', 'under', or false
+	 */
 	var outOfRange = function (field) {
 
 		// Make sure field has value
@@ -504,6 +513,11 @@ if (!Element.prototype.matches) {
 
 	};
 
+	/**
+	 * Check if the field value is too long or too short
+	 * @param  {Node}   field    The field to check
+	 * @return {String}           Returns 'over', 'under', or false
+	 */
 	var wrongLength = function (field) {
 
 		// Make sure field has value
@@ -521,23 +535,78 @@ if (!Element.prototype.matches) {
 
 	};
 
-	var getErrors = function (field, settings) {
-
-		// Get any errors
-		var errors = {
+	/**
+	 * Test for standard field validations
+	 * @param  {Node}   field    The field to test
+	 * @param  {Object} settings The plugin settings
+	 * @return {Object}          The tests and their results
+	 */
+	var runValidations = function (field, settings) {
+		return {
 			missingValue: missingValue(field),
 			patternMismatch: patternMismatch(field, settings),
 			outOfRange: outOfRange(field),
 			wrongLength: wrongLength(field)
 		};
+	};
+
+	/**
+	 * Run any provided custom validations
+	 * @param  {Node}   field       The field to test
+	 * @param  {Object} errors      The existing errors
+	 * @param  {Object} validations The custom validations to run
+	 * @param  {Object} settings    The plugin settings
+	 * @return {Object}             The tests and their results
+	 */
+	var customValidations = function (field, errors, validations, settings) {
+		for (var test in validations) {
+			if (validations.hasOwnProperty(test)) {
+				errors[test] = validations[test](field, settings);
+			}
+		}
+		return errors;
+	};
+
+	/**
+	 * Check if a field has any errors
+	 * @param  {Object}  errors The validation test results
+	 * @return {Boolean}        Returns true if there are errors
+	 */
+	var hasErrors = function (errors) {
+		for (var type in errors) {
+			if (errors[type]) return true;
+		}
+		return false;
+	};
+
+	/**
+	 * Check a field for errors
+	 * @param  {Node} field      The field to test
+	 * @param  {Object} settings The plugin settings
+	 * @return {Object}          The field validity and errors
+	 */
+	var getErrors = function (field, settings) {
+
+		// Get standard validation errors
+		var errors = runValidations(field,settings);
+
+		// Check for custom validations
+		errors = customValidations(field, errors, settings.customValidations, settings);
 
 		return {
-			valid: !errors.missingValue && !errors.patternMismatch && !errors.outOfRange && !errors.wrongLength,
+			valid: !hasErrors(errors),
 			errors: errors
 		};
 
 	};
 
+	/**
+	 * Get or create an ID for a field
+	 * @param  {Node}    field    The field
+	 * @param  {Object}  settings The plugin settings
+	 * @param  {Boolean} create   If true, create an ID if there isn't one
+	 * @return {String}           The field ID
+	 */
 	var getFieldID = function (field, settings, create) {
 		var id = field.name || field.id;
 		if (!id && create) {
@@ -547,6 +616,12 @@ if (!Element.prototype.matches) {
 		return id;
 	};
 
+	/**
+	 * Create a validation error message node
+	 * @param  {Node} field      The field
+	 * @param  {Object} settings The plugin settings
+	 * @return {Node}            The error message node
+	 */
 	var createError = function (field, settings) {
 
 		// Create the error message
@@ -573,14 +648,17 @@ if (!Element.prototype.matches) {
 
 	};
 
+	/**
+	 * Get the error message test
+	 * @param  {Node}            field    The field to get an error message for
+	 * @param  {Object}          errors   The errors on the field
+	 * @param  {Object}          settings The plugin settings
+	 * @return {String|Function}          The error message
+	 */
 	var getErrorMessage = function (field, errors, settings) {
 
 		// Variables
-		var custom = field.getAttribute(settings.messageCustom);
 		var messages = settings.messages;
-
-		// If there's a custom message, use it
-		if (custom) return custom;
 
 		// Missing value error
 		if (errors.missingValue) {
@@ -599,17 +677,35 @@ if (!Element.prototype.matches) {
 
 		// Pattern mismatch error
 		if (errors.patternMismatch) {
+			var custom = field.getAttribute(settings.messageCustom);
+			if (custom) return custom;
 			return messages.patternMismatch[field.type] || messages.patternMismatch.default;
 		}
 
+		// Custom validations
+		for (var test in settings.customValidations) {
+			if (settings.customValidations.hasOwnProperty(test)) {
+				if (errors[test] && messages[test]) return messages[test];
+			}
+		}
+
+		// Fallback error message
+		return messages.fallback;
+
 	};
 
+	/**
+	 * Show an error message in the DOM
+	 * @param  {Node} field      The field to show an error message for
+	 * @param  {Object}          errors   The errors on the field
+	 * @param  {Object}          settings The plugin settings
+	 */
 	var showError = function (field, errors, settings) {
 
 		// Get/create an error message
 		var error = field.form.querySelector('#' + settings.errorPrefix + getFieldID(field, settings)) || createError(field, settings);
 		var msg = getErrorMessage(field, errors, settings);
-		error.textContent = msg;
+		error.textContent = typeof msg === 'function' ? msg(field, settings) : msg;
 
 		// Add an error class to the field
 		field.classList.add(settings.fieldClass);
@@ -626,6 +722,11 @@ if (!Element.prototype.matches) {
 
 	};
 
+	/**
+	 * Remove an error message from the DOM
+	 * @param  {Node} field      The field with the error message
+	 * @param  {Object} settings The plugin settings
+	 */
 	var removeError = function (field, settings) {
 
 		// Get the error message for this field
@@ -646,6 +747,11 @@ if (!Element.prototype.matches) {
 
 	};
 
+	/**
+	 * Remove errors from all fields
+	 * @param  {String} selector The selector for the form
+	 * @param  {Object} settings The plugin settings
+	 */
 	var removeAllErrors = function (selector, settings) {
 		forEach(document.querySelectorAll(selector), (function (form) {
 			formEach(form.querySelectorAll('input, select, textarea'), (function (field) {
@@ -673,6 +779,12 @@ if (!Element.prototype.matches) {
 		// Methods
 		//
 
+		/**
+		 * Validate a field
+		 * @param  {Node} field     The field to validate
+		 * @param  {Object} options Validation options
+		 * @return {Object}         The validity state and errors
+		 */
 		publicAPIs.validate = function (field, options) {
 
 			// Don't validate submits, buttons, file and reset inputs, and disabled and readonly fields
@@ -697,6 +809,9 @@ if (!Element.prototype.matches) {
 
 		};
 
+		/**
+		 * Run a validation on field blur
+		 */
 		var blurHandler = function (event) {
 
 			// Only run if the field is in a form to be validated
@@ -707,13 +822,15 @@ if (!Element.prototype.matches) {
 
 		};
 
+		/**
+		 * Run a validation on a fields with errors when the value changes
+		 */
 		var inputHandler = function (event) {
 
 			// Only run if the field is in a form to be validated
 			if (!event.target.form || !event.target.form.matches(selector)) return;
 
-			// Only run on radio and checkbox inputs
-			// if (event.target.type === 'checkbox' || event.target.type === 'radio') return;
+			// Only run on fields with errors
 			if (!event.target.classList.contains(settings.fieldClass)) return;
 
 			// Validate the field
@@ -721,6 +838,9 @@ if (!Element.prototype.matches) {
 
 		};
 
+		/**
+		 * Validate an entire form when it's submitted
+		 */
 		var submitHandler = function (event) {
 
 			// Only run on matching elements
@@ -754,6 +874,9 @@ if (!Element.prototype.matches) {
 
 		};
 
+		/**
+		 * Destroy the current plugin instantiation
+		 */
 		publicAPIs.destroy = function () {
 
 			// Remove event listeners
@@ -779,6 +902,9 @@ if (!Element.prototype.matches) {
 
 		};
 
+		/**
+		 * Instantiate a new instance of the plugin
+		 */
 		var init = function () {
 
 			// Create settings
