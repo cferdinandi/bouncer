@@ -512,6 +512,12 @@
 
 			// If valid, remove any error messages
 			if (isValid.valid) {
+                if (field.type === 'radio' || field.type === 'checkbox') {
+                    forEach(field.form.querySelectorAll('[name="' + escapeInputName(field.name) + '"]'), (function (radioField) {
+                        radioField.classList.remove(settings.fieldClass);
+                        radioField.removeAttribute('aria-describedby');
+                    }));
+                }
 				removeError(field, _settings);
 				return;
 			}
