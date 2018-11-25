@@ -168,7 +168,7 @@
 
 		// Handle radio buttons
 		if (field.type === 'radio') {
-			length = Array.prototype.filter.call(field.form.querySelectorAll('[name="' + field.name + '"]'), function (btn) {
+			length = Array.prototype.filter.call(field.form.querySelectorAll('[name="' + escapeInputName(field.name) + '"]'), function (btn) {
 				return btn.checked;
 			}).length;
 		}
@@ -314,7 +314,7 @@
 	 * @return {String}           The field ID
 	 */
 	var getFieldID = function (field, settings, create) {
-		var id = field.name || field.id;
+		var id = field.name ? field.name.replace("[", "_").replace("]", "_") : field.id;
 		if (!id && create) {
 			id = settings.fieldPrefix + Math.floor(Math.random() * 999);
 			field.id = id;
@@ -337,7 +337,7 @@
 
 		// If the field is a radio button, get the last item in the radio group
 		if (field.type === 'radio') {
-			var group = field.form.querySelectorAll('[name="' + field.name + '"]');
+			var group = field.form.querySelectorAll('[name="' + escapeInputName(field.name) + '"]');
 			field = group[group.length - 1];
 		}
 
@@ -464,6 +464,14 @@
 				removeError(field, settings);
 			});
 		});
+	};
+
+    /**
+	 * Escape the square brackets [ ] in the input name
+     * @param {String} name The input name to escape
+     */
+	var escapeInputName = function (name) {
+		return name.replace("[", "\\[").replace("]", "\\]");
 	};
 
 	/**
