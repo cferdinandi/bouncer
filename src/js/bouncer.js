@@ -307,6 +307,15 @@
 	};
 
 	/**
+	 * Escape the square brackets in the input name
+	 * @author Samuel Marineau-Cyr (https://github.com/smcyr)
+	 * @param {String} name The input name to escape
+	 */
+	var escapeID = function (id) {
+		return id.replace('[', '\\[').replace(']', '\\]');
+	};
+
+	/**
 	 * Get or create an ID for a field
 	 * @param  {Node}    field    The field
 	 * @param  {Object}  settings The plugin settings
@@ -314,7 +323,7 @@
 	 * @return {String}           The field ID
 	 */
 	var getFieldID = function (field, settings, create) {
-		var id = field.name || field.id;
+		var id = field.name ? escapeID(field.name) : field.id;
 		if (!id && create) {
 			id = settings.fieldPrefix + Math.floor(Math.random() * 999);
 			field.id = id;
@@ -536,11 +545,18 @@
 			// Only run if the field is in a form to be validated
 			if (!event.target.form || !event.target.form.matches(selector)) return;
 
+			// If the field is a radio button, get the button in the group
+			// Identified by Samuel Marineau-Cyr (https://github.com/smcyr)
+			var field = event.target;
+			if (event.target.type === 'radio') {
+				field = event.target.form.querySelector('[name="' + event.target.name + '"]');
+			}
+
 			// Only run on fields with errors
-			if (!event.target.classList.contains(settings.fieldClass)) return;
+			if (!field.classList.contains(settings.fieldClass)) return;
 
 			// Validate the field
-			publicAPIs.validate(event.target);
+			publicAPIs.validate(field);
 
 		};
 
@@ -588,6 +604,7 @@
 			// Remove event listeners
 			document.removeEventListener('blur', blurHandler, true);
 			document.removeEventListener('input', inputHandler, false);
+			document.removeEventListener('click', inputHandler, false);
 			document.removeEventListener('submit', submitHandler, false);
 
 			// Remove all errors
@@ -622,6 +639,7 @@
 			// Event Listeners
 			document.addEventListener('blur', blurHandler, true);
 			document.addEventListener('input', inputHandler, false);
+			document.addEventListener('click', inputHandler, false);
 			document.addEventListener('submit', submitHandler, false);
 
 			// Emit custom event
