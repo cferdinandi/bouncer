@@ -1,5 +1,6 @@
 /*!
- * bouncer v1.2.1: A lightweight form validation script that augments native HTML5 form validation elements and attributes.
+ * bouncer v1.2.2
+ * A lightweight form validation script that augments native HTML5 form validation elements and attributes.
  * (c) 2018 Chris Ferdinandi
  * MIT License
  * http://github.com/cferdinandi/bouncer
@@ -428,7 +429,7 @@ if (!Element.prototype.matches) {
 	 * @param {Boolean} remove  If true, remove the `novalidate` attribute
 	 */
 	var addNoValidate = function (selector) {
-		forEach(document.querySelectorAll(selector), (function (form) {
+		forEach(document.querySelectorAll(escapeCharacters(selector)), (function (form) {
 			form.setAttribute('novalidate', true);
 		}));
 	};
@@ -437,7 +438,7 @@ if (!Element.prototype.matches) {
 	 * Remove the `novalidate` attribute to all forms
 	 */
 	var removeNoValidate = function (selector) {
-		forEach(document.querySelectorAll(selector), (function (form) {
+		forEach(document.querySelectorAll(escapeCharacters(selector)), (function (form) {
 			form.removeAttribute('novalidate');
 		}));
 	};
@@ -462,7 +463,7 @@ if (!Element.prototype.matches) {
 
 		// Handle radio buttons
 		if (field.type === 'radio') {
-			length = Array.prototype.filter.call(field.form.querySelectorAll('[name="' + field.name + '"]'), (function (btn) {
+			length = Array.prototype.filter.call(field.form.querySelectorAll('[name="' + escapeCharacters(field.name) + '"]'), (function (btn) {
 				return btn.checked;
 			})).length;
 		}
@@ -601,12 +602,78 @@ if (!Element.prototype.matches) {
 	};
 
 	/**
-	 * Escape the square brackets in the input name
-	 * @author Samuel Marineau-Cyr (https://github.com/smcyr)
-	 * @param {String} name The input name to escape
+	 * Escape special characters for use with querySelector
+	 * @author Mathias Bynens
+	 * @link https://github.com/mathiasbynens/CSS.escape
+	 * @param {String} id The anchor ID to escape
 	 */
-	var escapeID = function (id) {
-		return id.replace('[', '\\[').replace(']', '\\]');
+	var escapeCharacters = function (id) {
+
+		var string = String(id);
+		var length = string.length;
+		var index = -1;
+		var codeUnit;
+		var result = '';
+		var firstCodeUnit = string.charCodeAt(0);
+		while (++index < length) {
+			codeUnit = string.charCodeAt(index);
+			// Note: there’s no need to special-case astral symbols, surrogate
+			// pairs, or lone surrogates.
+
+			// If the character is NULL (U+0000), then throw an
+			// `InvalidCharacterError` exception and terminate these steps.
+			if (codeUnit === 0x0000) {
+				throw new InvalidCharacterError(
+					'Invalid character: the input contains U+0000.'
+				);
+			}
+
+			if (
+				// If the character is in the range [\1-\1F] (U+0001 to U+001F) or is
+				// U+007F, […]
+				(codeUnit >= 0x0001 && codeUnit <= 0x001F) || codeUnit == 0x007F ||
+				// If the character is the first character and is in the range [0-9]
+				// (U+0030 to U+0039), […]
+				(index === 0 && codeUnit >= 0x0030 && codeUnit <= 0x0039) ||
+				// If the character is the second character and is in the range [0-9]
+				// (U+0030 to U+0039) and the first character is a `-` (U+002D), […]
+				(
+					index === 1 &&
+					codeUnit >= 0x0030 && codeUnit <= 0x0039 &&
+					firstCodeUnit === 0x002D
+				)
+			) {
+				// http://dev.w3.org/csswg/cssom/#escape-a-character-as-code-point
+				result += '\\' + codeUnit.toString(16) + ' ';
+				continue;
+			}
+
+			// If the character is not handled by one of the above rules and is
+			// greater than or equal to U+0080, is `-` (U+002D) or `_` (U+005F), or
+			// is in one of the ranges [0-9] (U+0030 to U+0039), [A-Z] (U+0041 to
+			// U+005A), or [a-z] (U+0061 to U+007A), […]
+			if (
+				codeUnit >= 0x0080 ||
+				codeUnit === 0x002D ||
+				codeUnit === 0x005F ||
+				codeUnit >= 0x0030 && codeUnit <= 0x0039 ||
+				codeUnit >= 0x0041 && codeUnit <= 0x005A ||
+				codeUnit >= 0x0061 && codeUnit <= 0x007A
+			) {
+				// the character itself
+				result += string.charAt(index);
+				continue;
+			}
+
+			// Otherwise, the escaped character.
+			// http://dev.w3.org/csswg/cssom/#escape-a-character
+			result += '\\' + string.charAt(index);
+
+		}
+
+		// Return sanitized hash
+		return result;
+
 	};
 
 	/**
@@ -617,7 +684,7 @@ if (!Element.prototype.matches) {
 	 * @return {String}           The field ID
 	 */
 	var getFieldID = function (field, settings, create) {
-		var id = field.name ? escapeID(field.name) : field.id;
+		var id = field.name ? escapeCharacters(field.name) : field.id;
 		if (!id && create) {
 			id = settings.fieldPrefix + Math.floor(Math.random() * 999);
 			field.id = id;
@@ -640,7 +707,7 @@ if (!Element.prototype.matches) {
 
 		// If the field is a radio button, get the last item in the radio group
 		if (field.type === 'radio') {
-			var group = field.form.querySelectorAll('[name="' + field.name + '"]');
+			var group = field.form.querySelectorAll('[name="' + escapeCharacters(field.name) + '"]');
 			field = group[group.length - 1];
 		}
 
@@ -843,7 +910,7 @@ if (!Element.prototype.matches) {
 			// Identified by Samuel Marineau-Cyr (https://github.com/smcyr)
 			var field = event.target;
 			if (event.target.type === 'radio') {
-				field = event.target.form.querySelector('[name="' + event.target.name + '"]');
+				field = event.target.form.querySelector('[name="' + escapeCharacters(event.target.name) + '"]');
 			}
 
 			// Only run on fields with errors
