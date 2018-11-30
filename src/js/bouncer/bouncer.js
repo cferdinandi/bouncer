@@ -149,6 +149,15 @@
 	};
 
 	/**
+	 * Check if a field is a radio or checkbox
+	 * @param  {Node  }  field The field to check
+	 * @return {Boolean}       Returns true if it's a radio or checkbox input
+	 */
+	var isRadioOrCheckbox = function (field) {
+		return field.type === 'radio' || field.type === 'checkbox';
+	};
+
+	/**
 	 * Check if a required field is missing its value
 	 * @param  {Node} field The field to check
 	 * @return {Boolean}       It true, field is missing it's value
@@ -159,15 +168,16 @@
 		if (!field.hasAttribute('required')) return false;
 
 		// Handle checkboxes
-		if (field.type === 'checkbox') {
-			return !field.checked;
-		}
+		// @todo delete
+		// if (field.type === 'checkbox') {
+		// 	return !field.checked;
+		// }
 
 		// Get the field value length
 		var length = field.value.length;
 
 		// Handle radio buttons
-		if (field.type === 'radio') {
+		if (isRadioOrCheckbox(field)) {
 			length = Array.prototype.filter.call(field.form.querySelectorAll('[name="' + escapeCharacters(field.name) + '"]'), function (btn) {
 				return btn.checked;
 			}).length;
@@ -404,16 +414,19 @@
 	 */
 	var getErrorField = function (field) {
 
-		// If the field is a radio button, get the last item in the radio group
-		if (field.type === 'radio' && field.name) {
-			var group = field.form.querySelectorAll('[name="' + escapeCharacters(field.name) + '"]');
-			field = group[group.length - 1];
-		}
+		// If the field is a radio button or checkbox
+		if (isRadioOrCheckbox(field)) {
 
-		// If the field is a checkbox or radio button wrapped in a label, get the label
-		if (field.type === 'checkbox' || field.type === 'radio') {
+			// Get the last item in the radio/checkbox group
+			if (field.name) {
+				var group = field.form.querySelectorAll('[name="' + escapeCharacters(field.name) + '"]');
+				field = group[group.length - 1];
+			}
+
+			// Get the associated label
 			var label = field.closest('label') || field.form.querySelector('[for="' + field.id + '"]');
 			field = label || field;
+
 		}
 
 		return field;
@@ -501,7 +514,7 @@
 	};
 
 	/**
-	 * Show error attributes on a field or radio group
+	 * Show error attributes on a field or radio/checkbox group
 	 * @param  {Node}   field    The field with the error message
 	 * @param  {Node}   error    The error message
 	 * @param  {Object} settings The plugin settings
@@ -509,7 +522,7 @@
 	var showErrorAttributes = function (field, error, settings) {
 
 		// If field is a radio button, add attributes to every button in the group
-		if (field.type === 'radio' && field.name) {
+		if (isRadioOrCheckbox(field) && field.name) {
 			Array.prototype.forEach.call(document.querySelectorAll('[name="' + field.name + '"]'), function (button) {
 				addErrorAttributes(button, error, settings);
 			});
@@ -565,7 +578,7 @@
 	var removeErrorAttributes = function (field, settings) {
 
 		// If field is a radio button, add attributes to every button in the group
-		if (field.type === 'radio' && field.name) {
+		if (isRadioOrCheckbox(field) && field.name) {
 			Array.prototype.forEach.call(document.querySelectorAll('[name="' + field.name + '"]'), function (button) {
 				removeAttributes(button, settings);
 			});
@@ -684,18 +697,11 @@
 			// Only run if the field is in a form to be validated
 			if (!event.target.form || !event.target.form.matches(selector)) return;
 
-			// If the field is a radio button, get the button in the group
-			// Identified by Samuel Marineau-Cyr (https://github.com/smcyr)
-			var field = event.target;
-			if (event.target.type === 'radio') {
-				field = event.target.form.querySelector('[name="' + escapeCharacters(event.target.name) + '"]');
-			}
-
 			// Only run on fields with errors
-			if (!field.classList.contains(settings.fieldClass)) return;
+			if (!event.target.classList.contains(settings.fieldClass)) return;
 
 			// Validate the field
-			publicAPIs.validate(field);
+			publicAPIs.validate(event.target);
 
 		};
 
