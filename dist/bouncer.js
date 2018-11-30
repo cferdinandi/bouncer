@@ -1,5 +1,5 @@
 /*!
- * bouncer v1.2.2
+ * bouncer v1.2.3
  * A lightweight form validation script that augments native HTML5 form validation elements and attributes.
  * (c) 2018 Chris Ferdinandi
  * MIT License
@@ -397,12 +397,35 @@
 	 * @return {String}           The field ID
 	 */
 	var getFieldID = function (field, settings, create) {
-		var id = field.name ? escapeCharacters(field.name) : field.id;
+		var id = field.name ? field.name : field.id;
 		if (!id && create) {
 			id = settings.fieldPrefix + Math.floor(Math.random() * 999);
 			field.id = id;
 		}
 		return id;
+	};
+
+	/**
+	 * Special handling for radio buttons and checkboxes wrapped in labels.
+	 * @param  {Node} field The field with the error
+	 * @return {Node}       The field to show the error on
+	 */
+	var getErrorField = function (field) {
+
+		// If the field is a radio button, get the last item in the radio group
+		if (field.type === 'radio' && field.name) {
+			var group = field.form.querySelectorAll('[name="' + escapeCharacters(field.name) + '"]');
+			field = group[group.length - 1];
+		}
+
+		// If the field is a checkbox or radio button wrapped in a label, get the label
+		if (field.type === 'checkbox' || field.type === 'radio') {
+			var label = field.closest('label') || field.form.querySelector('[for="' + field.id + '"]');
+			field = label || field;
+		}
+
+		return field;
+
 	};
 
 	/**
@@ -413,25 +436,16 @@
 	 */
 	var createError = function (field, settings) {
 
+		// If the field is a radio button or checkbox, grab the last field label
+		var fieldTarget = getErrorField(field);
+
 		// Create the error message
 		var error = document.createElement('div');
 		error.className = settings.errorClass;
 		error.id = settings.errorPrefix + getFieldID(field, settings, true);
 
-		// If the field is a radio button, get the last item in the radio group
-		if (field.type === 'radio') {
-			var group = field.form.querySelectorAll('[name="' + escapeCharacters(field.name) + '"]');
-			field = group[group.length - 1];
-		}
-
-		// If the field is a checkbox or radio button wrapped in a label, get the label
-		if (field.type === 'checkbox' || field.type === 'radio') {
-			var label = field.closest('label');
-			field = label || field;
-		}
-
 		// Inject the error message into the DOM
-		field.parentNode.insertBefore(error, settings.messageAfterField ? field.nextSibling : field);
+		fieldTarget.parentNode.insertBefore(error, settings.messageAfterField ? fieldTarget.nextSibling : fieldTarget);
 
 		return error;
 
@@ -484,6 +498,37 @@
 	};
 
 	/**
+	 * Add error attributes to a field
+	 * @param  {Node}   field    The field with the error message
+	 * @param  {Node}   error    The error message
+	 * @param  {Object} settings The plugin settings
+	 */
+	var addErrorAttributes = function (field, error, settings) {
+		field.classList.add(settings.fieldClass);
+		field.setAttribute('aria-describedby', error.id);
+	};
+
+	/**
+	 * Show error attributes on a field or radio group
+	 * @param  {Node}   field    The field with the error message
+	 * @param  {Node}   error    The error message
+	 * @param  {Object} settings The plugin settings
+	 */
+	var showErrorAttributes = function (field, error, settings) {
+
+		// If field is a radio button, add attributes to every button in the group
+		if (field.type === 'radio' && field.name) {
+			Array.prototype.forEach.call(document.querySelectorAll('[name="' + field.name + '"]'), (function (button) {
+				addErrorAttributes(button, error, settings);
+			}));
+		}
+
+		// Otherwise, add an error class and aria attribute to the field
+		addErrorAttributes(field, error, settings);
+
+	};
+
+	/**
 	 * Show an error message in the DOM
 	 * @param  {Node} field      The field to show an error message for
 	 * @param  {Object}          errors   The errors on the field
@@ -492,15 +537,12 @@
 	var showError = function (field, errors, settings) {
 
 		// Get/create an error message
-		var error = field.form.querySelector('#' + settings.errorPrefix + getFieldID(field, settings)) || createError(field, settings);
+		var error = field.form.querySelector('#' + escapeCharacters(settings.errorPrefix + getFieldID(field, settings))) || createError(field, settings);
 		var msg = getErrorMessage(field, errors, settings);
 		error.textContent = typeof msg === 'function' ? msg(field, settings) : msg;
 
-		// Add an error class to the field
-		field.classList.add(settings.fieldClass);
-
-		// Accessibility improvement
-		field.setAttribute('aria-describedby', error.id);
+		// Add error attributes
+		showErrorAttributes(field, error, settings);
 
 		// Emit custom event
 		if (settings.emitEvents) {
@@ -512,6 +554,38 @@
 	};
 
 	/**
+	 * Remove error attributes from a field
+	 * @param  {Node}   field    The field with the error message
+	 * @param  {Node}   error    The error message
+	 * @param  {Object} settings The plugin settings
+	 */
+	var removeAttributes = function (field, settings) {
+		field.classList.remove(settings.fieldClass);
+		field.removeAttribute('aria-describedby');
+	};
+
+	/**
+	 * Remove error attributes from the field or radio group
+	 * @param  {Node}   field    The field with the error message
+	 * @param  {Node}   error    The error message
+	 * @param  {Object} settings The plugin settings
+	 */
+	var removeErrorAttributes = function (field, settings) {
+
+		// If field is a radio button, add attributes to every button in the group
+		if (field.type === 'radio' && field.name) {
+			Array.prototype.forEach.call(document.querySelectorAll('[name="' + field.name + '"]'), (function (button) {
+				removeAttributes(button, settings);
+			}));
+			return;
+		}
+
+		// Otherwise, add an error class and aria attribute to the field
+		removeAttributes(field, settings);
+
+	};
+
+	/**
 	 * Remove an error message from the DOM
 	 * @param  {Node} field      The field with the error message
 	 * @param  {Object} settings The plugin settings
@@ -519,15 +593,14 @@
 	var removeError = function (field, settings) {
 
 		// Get the error message for this field
-		var error = field.form.querySelector('#' + settings.errorPrefix + getFieldID(field, settings));
+		var error = field.form.querySelector('#' + escapeCharacters(settings.errorPrefix + getFieldID(field, settings)));
 		if (!error) return;
 
 		// Remove the error
 		error.parentNode.removeChild(error);
 
 		// Remove error and a11y from the field
-		field.classList.remove(settings.fieldClass);
-		field.removeAttribute('aria-describedby');
+		removeErrorAttributes(field, settings);
 
 		// Emit custom event
 		if (settings.emitEvents) {
