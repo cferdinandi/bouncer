@@ -1,5 +1,5 @@
 /*!
- * bouncer v1.2.4
+ * bouncer v1.2.5
  * A lightweight form validation script that augments native HTML5 form validation elements and attributes.
  * (c) 2018 Chris Ferdinandi
  * MIT License
@@ -176,16 +176,15 @@
 		if (!field.hasAttribute('required')) return false;
 
 		// Handle checkboxes
-		// @todo delete
-		// if (field.type === 'checkbox') {
-		// 	return !field.checked;
-		// }
+		if (field.type === 'checkbox') {
+			return !field.checked;
+		}
 
 		// Get the field value length
 		var length = field.value.length;
 
 		// Handle radio buttons
-		if (isRadioOrCheckbox(field)) {
+		if (field.type === 'radio') {
 			length = Array.prototype.filter.call(field.form.querySelectorAll('[name="' + escapeCharacters(field.name) + '"]'), (function (btn) {
 				return btn.checked;
 			})).length;
@@ -412,6 +411,9 @@
 			id = settings.fieldPrefix + Math.floor(Math.random() * 999);
 			field.id = id;
 		}
+		if (isRadioOrCheckbox(field)) {
+			id += '_' + (field.value || field.id);
+		}
 		return id;
 	};
 
@@ -422,19 +424,18 @@
 	 */
 	var getErrorField = function (field) {
 
-		// If the field is a radio button or checkbox
+		// If the field is a radio button, get the last item in the radio group
+		// @todo if location is before, get first item
+		if (field.type === 'radio' && field.name) {
+			var group = field.form.querySelectorAll('[name="' + escapeCharacters(field.name) + '"]');
+			field = group[group.length - 1];
+		}
+
+		// Get the associated label for radio button or checkbox
 		if (isRadioOrCheckbox(field)) {
-
-			// Get the last item in the radio/checkbox group
-			if (field.name) {
-				var group = field.form.querySelectorAll('[name="' + escapeCharacters(field.name) + '"]');
-				field = group[group.length - 1];
-			}
-
-			// Get the associated label
 			var label = field.closest('label') || field.form.querySelector('[for="' + field.id + '"]');
 			field = label || field;
-
+			console.log(field);
 		}
 
 		return field;
@@ -530,7 +531,7 @@
 	var showErrorAttributes = function (field, error, settings) {
 
 		// If field is a radio button, add attributes to every button in the group
-		if (isRadioOrCheckbox(field) && field.name) {
+		if (field.type === 'radio' && field.name) {
 			Array.prototype.forEach.call(document.querySelectorAll('[name="' + field.name + '"]'), (function (button) {
 				addErrorAttributes(button, error, settings);
 			}));
@@ -585,8 +586,8 @@
 	 */
 	var removeErrorAttributes = function (field, settings) {
 
-		// If field is a radio button, add attributes to every button in the group
-		if (isRadioOrCheckbox(field) && field.name) {
+		// If field is a radio button, remove attributes from every button in the group
+		if (field.type === 'radio' && field.name) {
 			Array.prototype.forEach.call(document.querySelectorAll('[name="' + field.name + '"]'), (function (button) {
 				removeAttributes(button, settings);
 			}));
