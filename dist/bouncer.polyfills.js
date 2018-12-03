@@ -1,5 +1,5 @@
 /*!
- * bouncer v1.3.0
+ * bouncer v1.3.1
  * A lightweight form validation script that augments native HTML5 form validation elements and attributes.
  * (c) 2018 Chris Ferdinandi
  * MIT License
@@ -711,7 +711,7 @@ if (!Element.prototype.matches) {
 		}
 
 		// Get the associated label for radio button or checkbox
-		if (field.type === 'radio' || field.name === 'checkbox') {
+		if (field.type === 'radio' || field.type === 'checkbox') {
 			var label = field.closest('label') || field.form.querySelector('[for="' + field.id + '"]');
 			field = label || field;
 		}
@@ -732,7 +732,9 @@ if (!Element.prototype.matches) {
 		var selector = field.getAttribute(settings.messageTarget);
 		if (selector) {
 			var location = field.form.querySelector(selector);
-			if (location) return location;
+			if (location) {
+				return location;
+			}
 		}
 
 		// If the message should come after the field
@@ -762,7 +764,8 @@ if (!Element.prototype.matches) {
 		var fieldTarget = getErrorField(field);
 
 		// Inject the error message into the DOM
-		fieldTarget.parentNode.insertBefore(error, getErrorLocation(field, fieldTarget, settings));
+		var location = getErrorLocation(field, fieldTarget, settings);
+		location.parentNode.insertBefore(error, location);
 
 		return error;
 
