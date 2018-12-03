@@ -269,6 +269,27 @@ var validate = new Bouncer('form', {
 });
 ```
 
+## Error Message Location
+
+By default, bouncer will render error messages after the invalid field (or the label for it, if the field is a `radio` or `checkbox`).
+
+You can optionally render error messages *before* the field by setting the `messageAfterField` option to `false`.
+
+```js
+var validate = new Bouncer('form', {
+	messageAfterField: false
+});
+```
+
+You can also assign a custom location for an error message by including the `[data-bouncer-target]` attribute on a field. Use a selector for where the message should go as its value.
+
+```html
+<label for="email">Your Email Address</label>
+<input type="email" name="email" id="email" data-bouncer-target="#email-error">
+<p><strong>Why do we need this?</strong> We'll use your email address to send you account information.</p>
+<div id="email-error"></div>
+```
+
 
 
 ## Options and Settings
@@ -305,6 +326,7 @@ var validate = new Bouncer('form', {
 	// Message Settings
 	messageAfterField: true, // If true, displays error message below field. If false, displays it above.
 	messageCustom: 'data-bouncer-message', // The data attribute to use for customer error messages
+	messageTarget: 'data-bouncer-target', // The data attribute to pass in a custom selector for the field error location
 
 	// Error messages by error type
 	messages: {

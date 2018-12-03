@@ -1,5 +1,5 @@
 /*!
- * bouncer v1.2.5
+ * bouncer v1.3.0
  * A lightweight form validation script that augments native HTML5 form validation elements and attributes.
  * (c) 2018 Chris Ferdinandi
  * MIT License
@@ -336,6 +336,7 @@ if (!Element.prototype.matches) {
 		// Messages
 		messageAfterField: true,
 		messageCustom: 'data-bouncer-message',
+		messageTarget: 'data-bouncer-target',
 		messages: {
 			missingValue: {
 				checkbox: 'This field is required.',
@@ -441,15 +442,6 @@ if (!Element.prototype.matches) {
 		forEach(document.querySelectorAll(escapeCharacters(selector)), (function (form) {
 			form.removeAttribute('novalidate');
 		}));
-	};
-
-	/**
-	 * Check if a field is a radio or checkbox
-	 * @param  {Node  }  field The field to check
-	 * @return {Boolean}       Returns true if it's a radio or checkbox input
-	 */
-	var isRadioOrCheckbox = function (field) {
-		return field.type === 'radio' || field.type === 'checkbox';
 	};
 
 	/**
@@ -698,7 +690,7 @@ if (!Element.prototype.matches) {
 			id = settings.fieldPrefix + Math.floor(Math.random() * 999);
 			field.id = id;
 		}
-		if (isRadioOrCheckbox(field)) {
+		if (field.type === 'checkbox') {
 			id += '_' + (field.value || field.id);
 		}
 		return id;
@@ -719,13 +711,37 @@ if (!Element.prototype.matches) {
 		}
 
 		// Get the associated label for radio button or checkbox
-		if (isRadioOrCheckbox(field)) {
+		if (field.type === 'radio' || field.name === 'checkbox') {
 			var label = field.closest('label') || field.form.querySelector('[for="' + field.id + '"]');
 			field = label || field;
-			console.log(field);
 		}
 
 		return field;
+
+	};
+
+	/**
+	 * Get the location for a field's error message
+	 * @param  {Node} field      The field
+	 * @param  {Object} settings The plugin settings
+	 * @return {Node}            The error location
+	 */
+	var getErrorLocation = function (field, target, settings) {
+
+		// Check for a custom error message
+		var selector = field.getAttribute(settings.messageTarget);
+		if (selector) {
+			var location = field.form.querySelector(selector);
+			if (location) return location;
+		}
+
+		// If the message should come after the field
+		if (settings.messageAfterField) {
+			return target.nextSibling;
+		}
+
+		// If it should come before
+		return target;
 
 	};
 
@@ -737,16 +753,16 @@ if (!Element.prototype.matches) {
 	 */
 	var createError = function (field, settings) {
 
-		// If the field is a radio button or checkbox, grab the last field label
-		var fieldTarget = getErrorField(field);
-
 		// Create the error message
 		var error = document.createElement('div');
 		error.className = settings.errorClass;
 		error.id = settings.errorPrefix + getFieldID(field, settings, true);
 
+		// If the field is a radio button or checkbox, grab the last field label
+		var fieldTarget = getErrorField(field);
+
 		// Inject the error message into the DOM
-		fieldTarget.parentNode.insertBefore(error, settings.messageAfterField ? fieldTarget.nextSibling : fieldTarget);
+		fieldTarget.parentNode.insertBefore(error, getErrorLocation(field, fieldTarget, settings));
 
 		return error;
 
