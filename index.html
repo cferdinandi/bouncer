@@ -112,7 +112,14 @@
 			</nav>
 
 			<section>
+
 				<form data-validate>
+
+					<div>
+						<label for="file">Upload any file</label>
+						<input name="file" id="file" type="file" required>
+					</div>
+
 					<div>
 						<label for="color">Color Picker <span class="pattern color">7-Character Hexadecimal (ex. #f7f7f7)</span></label>
 						<input type="color" name="color" id="color" pattern="#?([a-fA-F0-9]{6}|[a-fA-F0-9]{3})" required>
