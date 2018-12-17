@@ -1,5 +1,5 @@
 /*!
- * bouncer v1.3.1
+ * bouncer v1.3.2
  * A lightweight form validation script that augments native HTML5 form validation elements and attributes.
  * (c) 2018 Chris Ferdinandi
  * MIT License
@@ -485,7 +485,7 @@ if (!Element.prototype.matches) {
 
 		// Check if there's a pattern to match
 		var pattern = field.getAttribute('pattern');
-		pattern = pattern ? new RegExp(pattern) : settings.patterns[field.type];
+		pattern = pattern ? new RegExp('^(?:' + pattern + ')$') : settings.patterns[field.type];
 		if (!pattern || !field.value || field.value.length < 1) return false;
 
 		// Validate the pattern

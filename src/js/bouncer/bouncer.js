@@ -190,7 +190,7 @@
 
 		// Check if there's a pattern to match
 		var pattern = field.getAttribute('pattern');
-		pattern = pattern ? new RegExp(pattern) : settings.patterns[field.type];
+		pattern = pattern ? new RegExp('^(?:' + pattern + ')$') : settings.patterns[field.type];
 		if (!pattern || !field.value || field.value.length < 1) return false;
 
 		// Validate the pattern
