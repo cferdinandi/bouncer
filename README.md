@@ -424,14 +424,14 @@ Bouncer exposes a few public methods that you can use in your own scripts.
 
 #### `validate()`
 
-Validate a field.
+Validate a field. Pass in the field as an argument. Returns an object with validity data.
 
 ```js
 // Get a field
 var field = document.querySelector('#email');
 
 // Validate the field
-var validate = new Bouncer();
+var bouncer = new Bouncer();
 var isValid = bouncer.validate(field);
 
 // Returns an object
@@ -456,13 +456,26 @@ bouncer.validate(field, {
 });
 ```
 
+#### `validateAll()`
+
+Validate all fields in a form or fieldset. Pass in the section as an argument. Returns an array of fields with errors.
+
+```js
+// Get a fieldset
+var fieldset = document.querySelector('#fieldset');
+
+// Validate the field
+var bouncer = new Bouncer();
+var areValid = bouncer.validateAll(fieldset);
+```
+
 #### `destroy()`
 
 Destroys an instantiated Bouncer instance. Removes any errors from the form and turns validation back over to the browser-native APIs.
 
 ```js
 // An bouncer instance
-var validate = new Bouncer('form');
+var bouncer = new Bouncer('form');
 
 // Destroy it
 bouncer.destroy();

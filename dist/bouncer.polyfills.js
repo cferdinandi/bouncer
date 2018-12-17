@@ -1,5 +1,5 @@
 /*!
- * bouncer v1.3.3
+ * bouncer v1.4.0
  * A lightweight form validation script that augments native HTML5 form validation elements and attributes.
  * (c) 2018 Chris Ferdinandi
  * MIT License
@@ -992,6 +992,18 @@ if (!Element.prototype.matches) {
 		};
 
 		/**
+		 * Validate all fields in a form or section
+		 * @param  {Node} target The form or section to validate fields in
+		 * @return {Array}       An array of fields with errors
+		 */
+		publicAPIs.validateAll = function (target) {
+			return Array.prototype.filter.call(target.querySelectorAll('input, select, textarea'), (function (field) {
+				var validate = publicAPIs.validate(field);
+				return validate && !validate.valid;
+			}));
+		};
+
+		/**
 		 * Run a validation on field blur
 		 */
 		var blurHandler = function (event) {
@@ -1032,10 +1044,7 @@ if (!Element.prototype.matches) {
 			event.preventDefault();
 
 			// Validate each field
-			var errors = Array.prototype.filter.call(event.target.elements, (function (field) {
-				var validate = publicAPIs.validate(field);
-				return validate && !validate.valid;
-			}));
+			var errors = publicAPIs.validateAll(event.target);
 
 			// If there are errors, focus on the first one
 			if (errors.length > 0) {
