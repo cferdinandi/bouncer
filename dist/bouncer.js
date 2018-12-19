@@ -1,5 +1,5 @@
 /*!
- * bouncer v1.4.0
+ * bouncer v1.4.1
  * A lightweight form validation script that augments native HTML5 form validation elements and attributes.
  * (c) 2018 Chris Ferdinandi
  * MIT License
@@ -143,7 +143,7 @@
 	 * @param {Boolean} remove  If true, remove the `novalidate` attribute
 	 */
 	var addNoValidate = function (selector) {
-		forEach(document.querySelectorAll(escapeCharacters(selector)), (function (form) {
+		forEach(document.querySelectorAll(selector), (function (form) {
 			form.setAttribute('novalidate', true);
 		}));
 	};
@@ -152,7 +152,7 @@
 	 * Remove the `novalidate` attribute to all forms
 	 */
 	var removeNoValidate = function (selector) {
-		forEach(document.querySelectorAll(escapeCharacters(selector)), (function (form) {
+		forEach(document.querySelectorAll(selector), (function (form) {
 			form.removeAttribute('novalidate');
 		}));
 	};

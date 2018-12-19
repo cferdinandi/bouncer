@@ -113,7 +113,7 @@
 
 			<section>
 
-				<form data-validate>
+				<form class="validate-me" id="validate-me" data-validate>
 
 					<div>
 						<label for="file">Upload any file</label>
@@ -251,7 +251,7 @@
 		<!-- Javascript -->
 		<script src="dist/bouncer.polyfills.js"></script>
 		<script>
-			var bouncer = new Bouncer('form', {
+			var bouncer = new Bouncer('[data-validate]', {
 				disableSubmit: true,
 				customValidations: {
 					valueMismatch: function (field) {

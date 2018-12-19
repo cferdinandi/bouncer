@@ -135,7 +135,7 @@
 	 * @param {Boolean} remove  If true, remove the `novalidate` attribute
 	 */
 	var addNoValidate = function (selector) {
-		forEach(document.querySelectorAll(escapeCharacters(selector)), function (form) {
+		forEach(document.querySelectorAll(selector), function (form) {
 			form.setAttribute('novalidate', true);
 		});
 	};
@@ -144,7 +144,7 @@
 	 * Remove the `novalidate` attribute to all forms
 	 */
 	var removeNoValidate = function (selector) {
-		forEach(document.querySelectorAll(escapeCharacters(selector)), function (form) {
+		forEach(document.querySelectorAll(selector), function (form) {
 			form.removeAttribute('novalidate');
 		});
 	};
