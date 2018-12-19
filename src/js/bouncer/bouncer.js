@@ -19,6 +19,7 @@
 	var defaults = {
 
 		// Classes & IDs
+
 		fieldClass: 'error',
 		errorClass: 'error-message',
 		fieldPrefix: 'bouncer-field_',
@@ -531,6 +532,7 @@
 	var addErrorAttributes = function (field, error, settings) {
 		field.classList.add(settings.fieldClass);
 		field.setAttribute('aria-describedby', error.id);
+		field.setAttribute('aria-invalid', true);
 	};
 
 	/**
@@ -587,6 +589,7 @@
 	var removeAttributes = function (field, settings) {
 		field.classList.remove(settings.fieldClass);
 		field.removeAttribute('aria-describedby');
+		field.removeAttribute('aria-invalid');
 	};
 
 	/**
