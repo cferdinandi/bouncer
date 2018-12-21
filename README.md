@@ -281,7 +281,7 @@ var validate = new Bouncer('form', {
 });
 ```
 
-You can also assign a custom location for an error message by including the `[data-bouncer-target]` attribute on a field. Use a selector for where the message should go as its value.
+You can also assign a custom location for an error message by including the `[data-bouncer-target]` attribute on a field. Use a selector for where the message should go as its value. The error message is inserted before this target. You can optionally render error messages *inside* the target element by setting the `messageInsideTarget` option to `true`.
 
 ```html
 <label for="email">Your Email Address</label>

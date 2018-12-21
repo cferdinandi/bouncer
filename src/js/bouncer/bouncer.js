@@ -41,6 +41,7 @@
 
 		// Messages
 		messageAfterField: true,
+		messageInsideTarget: false,
 		messageCustom: 'data-bouncer-message',
 		messageTarget: 'data-bouncer-target',
 		messages: {
@@ -429,6 +430,7 @@
 	/**
 	 * Get the location for a field's error message
 	 * @param  {Node} field      The field
+	 * @param  {Node} target     The target for error message
 	 * @param  {Object} settings The plugin settings
 	 * @return {Node}            The error location
 	 */
@@ -439,6 +441,9 @@
 		if (selector) {
 			var location = field.form.querySelector(selector);
 			if (location) {
+				if (settings.messageInsideTarget) {
+					location = location.appendChild(document.createTextNode(''));
+				}
 				return location;
 			}
 		}
