@@ -165,13 +165,22 @@ You can use your own validation pattern for a field with the `pattern` attribute
 
 ### Custom Pattern Mismatch Error Messages
 
-Show custom errors for pattern mismatches by adding the `[data-bouncer-message]` attribute to the field.
+Show custom errors for pattern mismatches by adding the `[data-bouncer-message]` attribute to the field and setting it to a string value.
 
 ```html
 <!-- Phone number be in 555-555-5555 format -->
 <input type="text" name="tel" pattern="\d{3}[\-]\d{3}[\-]\d{4}" data-bouncer-message="Please use the following format: 555-555-5555">
 ```
 
+### Custom Error Messages
+
+Show field-specific custom messages for any validation errors by adding the `[data-bouncer-message]` attribute to the field and setting it to a JSON object with keys matching the `messages` setting.
+
+```html
+<!-- Age must be between 13 and 65 yrs. -->
+<input type="number" name="age" min="13" max="65" required
+  data-bouncer-message='{"missingValue": "You must provide your age", "outOfRange":{"over": "You are too old.", "under": "You are too young."}}'>
+```
 
 
 ## Styling Errors

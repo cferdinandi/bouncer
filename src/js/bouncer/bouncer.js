@@ -481,43 +481,63 @@
 	};
 
 	/**
-	 * Get the error message test
+	 * Get the error message text
 	 * @param  {Node}            field    The field to get an error message for
 	 * @param  {Object}          errors   The errors on the field
 	 * @param  {Object}          settings The plugin settings
 	 * @return {String|Function}          The error message
 	 */
 	var getErrorMessage = function (field, errors, settings) {
-
+		
 		// Variables
 		var messages = settings.messages;
+		var customMessages = field.getAttribute(settings.messageCustom);
+		if (customMessages && customMessages.trim().startsWith('{')) {
+			try {
+				customMessages = JSON.parse(customMessages);
+			} catch(e) {
+				customMessages = {};
+			}
+		} else {
+			customMessages = {
+				patternMismatch: customMessages
+			};
+		}
 
 		// Missing value error
 		if (errors.missingValue) {
-			return messages.missingValue[field.type] || messages.missingValue.default;
+			return customMessages.missingValue || messages.missingValue[field.type] || messages.missingValue.default;
 		}
 
 		// Numbers that are out of range
 		if (errors.outOfRange) {
-			return messages.outOfRange[errors.outOfRange].replace('{max}', field.getAttribute('max')).replace('{min}', field.getAttribute('min')).replace('{length}', field.value.length);
+			var msg = customMessages.outOfRange || messages.outOfRange;
+			if (typeof msg !== 'string') {
+				msg = msg[errors.outOfRange] || messages.fallback;
+			}
+			return msg.replace('{max}', field.getAttribute('max')).replace('{min}', field.getAttribute('min')).replace('{length}', field.value.length);
 		}
 
 		// Values that are too long or short
 		if (errors.wrongLength) {
-			return messages.wrongLength[errors.wrongLength].replace('{maxLength}', field.getAttribute('maxlength')).replace('{minLength}', field.getAttribute('minlength')).replace('{length}', field.value.length);
+			var msg = customMessages.wrongLength || messages.wrongLength;
+			if (typeof msg !== 'string') {
+				msg = msg[errors.wrongLength] || messages.fallback;
+			}
+			return msg.replace('{maxLength}', field.getAttribute('maxlength')).replace('{minLength}', field.getAttribute('minlength')).replace('{length}', field.value.length);
 		}
 
 		// Pattern mismatch error
 		if (errors.patternMismatch) {
-			var custom = field.getAttribute(settings.messageCustom);
-			if (custom) return custom;
-			return messages.patternMismatch[field.type] || messages.patternMismatch.default;
+			return customMessages.patternMismatch || messages.patternMismatch[field.type] || messages.patternMismatch.default;
 		}
 
 		// Custom validations
 		for (var test in settings.customValidations) {
 			if (settings.customValidations.hasOwnProperty(test)) {
-				if (errors[test] && messages[test]) return messages[test];
+				if (errors[test]) {
+					return customMessages[test] || messages[test] || messages.fallback;
+				}
 			}
 		}
 
