@@ -1,5 +1,5 @@
 /*!
- * bouncer v1.4.2
+ * bouncer v1.4.3
  * A lightweight form validation script that augments native HTML5 form validation elements and attributes.
  * (c) 2018 Chris Ferdinandi
  * MIT License
@@ -723,7 +723,8 @@ if (!Element.prototype.matches) {
 
 	/**
 	 * Get the location for a field's error message
-	 * @param  {Node} field      The field
+	 * @param  {Node}   field    The field
+	 * @param  {Node}   target   The target for error message
 	 * @param  {Object} settings The plugin settings
 	 * @return {Node}            The error location
 	 */
@@ -734,7 +735,9 @@ if (!Element.prototype.matches) {
 		if (selector) {
 			var location = field.form.querySelector(selector);
 			if (location) {
-				return location;
+				// @bugfix by @HaroldPutman
+				// https://github.com/cferdinandi/bouncer/pull/28
+				return location.firstChild || location.appendChild(document.createTextNode(''));
 			}
 		}
 

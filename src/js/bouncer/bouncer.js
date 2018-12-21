@@ -428,7 +428,8 @@
 
 	/**
 	 * Get the location for a field's error message
-	 * @param  {Node} field      The field
+	 * @param  {Node}   field    The field
+	 * @param  {Node}   target   The target for error message
 	 * @param  {Object} settings The plugin settings
 	 * @return {Node}            The error location
 	 */
@@ -439,7 +440,9 @@
 		if (selector) {
 			var location = field.form.querySelector(selector);
 			if (location) {
-				return location;
+				// @bugfix by @HaroldPutman
+				// https://github.com/cferdinandi/bouncer/pull/28
+				return location.firstChild || location.appendChild(document.createTextNode(''));
 			}
 		}
 

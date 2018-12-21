@@ -117,8 +117,10 @@
 
 					<div>
 						<label for="file">Upload any file</label>
-						<input name="file" id="file" type="file" required>
+						<input name="file" id="file" type="file" data-bouncer-target="#file-error-msg" required>
 					</div>
+
+					<div id="file-error-msg"></div>
 
 					<div>
 						<label for="color">Color Picker <span class="pattern color">7-Character Hexadecimal (ex. #f7f7f7)</span></label>
