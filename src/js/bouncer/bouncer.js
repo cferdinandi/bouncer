@@ -259,7 +259,9 @@
 	};
 
 	/**
-	 * Run any provided custom validations
+	 * Run any provided custom validations. Custom Validations
+	 * are assigned to field through a space separated list on
+	 * the `data-bouncer-validate` attribute.
 	 * @param  {Node}   field       The field to test
 	 * @param  {Object} errors      The existing errors
 	 * @param  {Object} validations The custom validations to run
@@ -267,10 +269,13 @@
 	 * @return {Object}             The tests and their results
 	 */
 	var customValidations = function (field, errors, validations, settings) {
-		for (var test in validations) {
-			if (validations.hasOwnProperty(test)) {
-				errors[test] = validations[test](field, settings);
-			}
+		var tests = field.getAttribute('data-bouncer-custom-validations');
+		if (tests) {
+			tests.split(' ').forEach(function (test) {
+				if (validations.hasOwnProperty(test)) {
+					errors[test] = validations[test](field, settings);
+				}
+			});
 		}
 		return errors;
 	};
