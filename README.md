@@ -226,13 +226,13 @@ The function should *check if the field has an error*. Return `true` if there's 
 
 ```html
 <label>Must enter hello</label>
-<input type="text" data-bouncer-custom-validations="isHello">
+<input type="text" data-bouncer-custom-validations="hello">
 ```
 
 ```js
 var validate = new Bouncer('form', {
 	customValidations: {
-		isHello: function (field) {
+		hello: function (field) {
 
 			// Return false because there is NO error
 			if (field.value === 'hello') return false;
@@ -254,7 +254,7 @@ The key should be the same as your custom validation. It's value can be a string
 ```js
 var validate = new Bouncer('form', {
 	customValidations: {
-		isHello: function (field) {
+		hello: function (field) {
 
 			// Return false because there is NO error
 			if (field.value === 'hello') return false;
@@ -266,10 +266,10 @@ var validate = new Bouncer('form', {
 	},
 	messages: {
 		// As a string
-		isHello: 'This field should have a value of "hello"',
+		hello: 'This field should have a value of "hello"',
 
 		// As a function
-		isHello: function () {
+		hello: function () {
 			return 'This field should have a value of "hello"';
 		}
 	}
