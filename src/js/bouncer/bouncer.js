@@ -448,7 +448,7 @@
 
 		// If the message should come after the field
 		if (settings.messageAfterField) {
-			return target.nextSibling;
+			return target.nextSibling || target.parentElement.appendChild(document.createTextNode(''));
 		}
 
 		// If it should come before
