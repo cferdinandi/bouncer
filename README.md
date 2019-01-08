@@ -174,12 +174,23 @@ Show custom errors for pattern mismatches by adding the `[data-bouncer-message]`
 
 ### Custom Error Messages
 
-Show field-specific custom messages for any validation errors by adding the `[data-bouncer-message]` attribute to the field and setting it to a JSON object with keys matching the `messages` setting.
+Show field-specific custom messages for any validation errors by adding the `[data-bouncer-message-*]` attributes to the input.
+
+* `data-bouncer-message-missing-value`
+* `data-bouncer-message-out-of-range` (used for both over and under)
+* `data-bouncer-message-out-of-range-over`
+* `data-bouncer-message-out-of-range-under`
+* `data-bouncer-message-wrong-length` (used for both over and under)
+* `data-bouncer-message-wrong-length-over`
+* `data-bouncer-message-wrong-length-under`
+* `data-bouncer-message-pattern-mismatch` (or `data-bouncer-message` for compatibility)
 
 ```html
 <!-- Age must be between 13 and 65 yrs. -->
 <input type="number" name="age" min="13" max="65" required
-  data-bouncer-message='{"missingValue": "You must provide your age", "outOfRange":{"over": "You are too old.", "under": "You are too young."}}'>
+	data-bouncer-message-missing-value="You must provide your age"
+	data-bouncer-message-out-of-range-over="You are too old."
+	data-bouncer-message-out-of-range-under="You are too young.">
 ```
 
 

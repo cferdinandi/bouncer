@@ -488,30 +488,22 @@
 	 * @return {String|Function}          The error message
 	 */
 	var getErrorMessage = function (field, errors, settings) {
-		
+
 		// Variables
 		var messages = settings.messages;
-		var customMessages = field.getAttribute(settings.messageCustom);
-		if (customMessages && customMessages.trim().startsWith('{')) {
-			try {
-				customMessages = JSON.parse(customMessages);
-			} catch(e) {
-				customMessages = {};
-			}
-		} else {
-			customMessages = {
-				patternMismatch: customMessages
-			};
-		}
 
 		// Missing value error
 		if (errors.missingValue) {
-			return customMessages.missingValue || messages.missingValue[field.type] || messages.missingValue.default;
+			return field.getAttribute(settings.messageCustom + '-missing-value')
+				|| messages.missingValue[field.type]
+				|| messages.missingValue.default;
 		}
 
 		// Numbers that are out of range
 		if (errors.outOfRange) {
-			var msg = customMessages.outOfRange || messages.outOfRange;
+			var msg = field.getAttribute(settings.messageCustom + '-out-of-range-' + errors.outOfRange)
+				|| field.getAttribute(settings.messageCustom + '-out-of-range')
+				|| messages.outOfRange;
 			if (typeof msg !== 'string') {
 				msg = msg[errors.outOfRange] || messages.fallback;
 			}
@@ -520,7 +512,9 @@
 
 		// Values that are too long or short
 		if (errors.wrongLength) {
-			var msg = customMessages.wrongLength || messages.wrongLength;
+			var msg = field.getAttribute(settings.messageCustom + '-wrong-length-' + errors.wrongLength)
+				|| field.getAttribute(settings.messageCustom + '-wrong-length')
+				|| messages.wrongLength;
 			if (typeof msg !== 'string') {
 				msg = msg[errors.wrongLength] || messages.fallback;
 			}
@@ -529,7 +523,10 @@
 
 		// Pattern mismatch error
 		if (errors.patternMismatch) {
-			return customMessages.patternMismatch || messages.patternMismatch[field.type] || messages.patternMismatch.default;
+			return field.getAttribute(settings.messageCustom + '-pattern-mismatch')
+				|| field.getAttribute(settings.messageCustom)
+				|| messages.patternMismatch[field.type]
+				|| messages.patternMismatch.default;
 		}
 
 		// Custom validations
