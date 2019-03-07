@@ -57,6 +57,14 @@ You can also use the [jsDelivr CDN](https://cdn.jsdelivr.net/gh/cferdinandi/boun
 <script src="https://cdn.jsdelivr.net/gh/cferdinandi/bouncer@1.0.0/dist/bouncer.polyfills.min.js"></script>
 ```
 
+**NPM**
+
+You can also use NPM (or your favorite package manager).
+
+```bash
+npm install formbouncerjs
+```
+
 ### 2. Add browser-native form validation attributes to your markup.
 
 No special markup needed&mdash;just browser-native validation attributes (like `required`) and input types (like `email` or `number`).
