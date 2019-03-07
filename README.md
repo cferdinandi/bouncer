@@ -1,9 +1,11 @@
 # Bouncer.js [![Build Status](https://travis-ci.org/cferdinandi/bouncer.svg)](https://travis-ci.org/cferdinandi/bouncer)
 A lightweight form validation script that augments native HTML5 form validation elements and attributes.
 
-[Demo](http://cferdinandi.github.io/bouncer/)
+**[View the Demo on CodePen &rarr;](https://codepen.io/cferdinandi/pen/ywMdKp)**
 
-## Features
+[Getting Started](#getting-started) | [Form Validation Attributes](#form-validation-attributes) | [Error Styling](#error-styling) | [Error Types](#error-types) | [Custom Validations](#custom-validation-types) | [Error Location](#error-message-location) | [API](#api) | [Browser Compatibility](#browser-compatibility) | [License](#license) |
+
+**Features:**
 
 - Fields validate on blur (as the user moves out of them), which data shows is the best time for cognitive load.
 - The entire form is validated on submit.
@@ -174,7 +176,7 @@ Show custom errors for pattern mismatches by adding the `[data-bouncer-message]`
 
 
 
-## Styling Errors
+## Error Styling
 
 Bouncer does not come pre-packaged with any styles for fields with errors or error messages. Use the `.error` class to style fields, and the `.error-message` class to style error messages.
 
@@ -292,15 +294,15 @@ You can also assign a custom location for an error message by including the `[da
 
 
 
-## Options and Settings
+## API
 
 Bouncer includes smart defaults and works right out of the box.
 
 But if you want to customize things, it also has a robust API that provides multiple ways for you to adjust the default options and settings.
 
-### Global Settings
+### Options and Settings
 
-You can customize validation patterns, error messages, and more by passing and options object into Bouncer as a second argument.
+You can customize validation patterns, error messages, and more by passing and options object into Bouncer during instantiation.
 
 ```js
 var validate = new Bouncer('form', {
@@ -480,26 +482,6 @@ var bouncer = new Bouncer('form');
 // Destroy it
 bouncer.destroy();
 ```
-
-
-
-## Working with the Source Files
-
-If you would prefer, you can work with the development code in the `src` directory using the included [Gulp build system](http://gulpjs.com/). This compiles, lints, and minifies code.
-
-### Dependencies
-Make sure these are installed first.
-
-* [Node.js](http://nodejs.org)
-* [Gulp](http://gulpjs.com) `sudo npm install -g gulp`
-
-### Quick Start
-
-1. In bash/terminal/command line, `cd` into your project directory.
-2. Run `npm install` to install required files.
-3. When it's done installing, run one of the task runners to get going:
-	* `gulp` manually compiles files.
-	* `gulp watch` automatically compiles files when changes are made and applies changes using [LiveReload](http://livereload.com/).
 
 
 
