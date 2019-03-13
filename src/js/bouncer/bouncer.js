@@ -647,7 +647,7 @@
 	 */
 	var removeAllErrors = function (selector, settings) {
 		forEach(document.querySelectorAll(selector), function (form) {
-			formEach(form.querySelectorAll('input, select, textarea'), function (field) {
+			forEach(form.querySelectorAll('input, select, textarea'), function (field) {
 				removeError(field, settings);
 			});
 		});

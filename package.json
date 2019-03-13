@@ -1,6 +1,6 @@
 {
 	"name": "formbouncerjs",
-	"version": "1.4.3",
+	"version": "1.4.5",
 	"description": "A lightweight form validation script that augments native HTML5 form validation elements and attributes.",
 	"main": "./dist/bouncer.polyfills.min.js",
 	"author": {

@@ -1,5 +1,5 @@
 /*!
- * formbouncerjs v1.4.3
+ * formbouncerjs v1.4.5
  * A lightweight form validation script that augments native HTML5 form validation elements and attributes.
  * (c) 2019 Chris Ferdinandi
  * MIT License
@@ -942,7 +942,7 @@ if (!Element.prototype.matches) {
 	 */
 	var removeAllErrors = function (selector, settings) {
 		forEach(document.querySelectorAll(selector), (function (form) {
-			formEach(form.querySelectorAll('input, select, textarea'), (function (field) {
+			forEach(form.querySelectorAll('input, select, textarea'), (function (field) {
 				removeError(field, settings);
 			}));
 		}));
