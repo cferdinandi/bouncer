@@ -187,12 +187,17 @@
 
 					<div>
 						<label for="confirm-password">Confirm Password <span class="pattern">must match the field above</span></label>
-						<input type="password" name="confirm-password" id="confirm-password" data-bouncer-match="#password" data-bouncer-mismatch-message="Your passwords do not match." required>
+						<input type="password" name="confirm-password" id="confirm-password" data-bouncer-custom-validations="valueMismatch" data-custom-match="#password" data-custom-mismatch-message="Your passwords do not match." required>
 					</div>
 
 					<div>
 						<label for="textminmax">Text with MinLength and MaxLength <span class="pattern">must be between 3 and 9 characters long</span></label>
 						<input type="text" minlength="3" maxlength="9" name="textminmax" id="textminmax" required>
+					</div>
+
+					<div>
+						<label for="palindrome">Enter a palindrome <span class="pattern">must read same forward and backward</span></label>
+						<input type="text" name="palindrome" id="palindrome" data-bouncer-custom-validations="notPalindrome" required>
 					</div>
 
 					<div>
@@ -260,7 +265,7 @@
 
 						// Look for a selector for a field to compare
 						// If there isn't one, return false (no error)
-						var selector = field.getAttribute('data-bouncer-match');
+						var selector = field.getAttribute('data-custom-match');
 						if (!selector) return false;
 
 						// Get the field to compare
@@ -272,13 +277,19 @@
 						// We want to return true for failures, which can be confusing
 						return otherField.value !== field.value;
 
+					},
+					notPalindrome: function (field) {
+						var lowRegStr = field.value.toLowerCase().replace(/[\W_]/g, '');
+						var reverseStr = lowRegStr.split('').reverse().join('');
+						return reverseStr !== lowRegStr;
 					}
 				},
 				messages: {
 					valueMismatch: function (field) {
-						var customMessage = field.getAttribute('data-bouncer-mismatch-message');
+						var customMessage = field.getAttribute('data-custom-mismatch-message');
 						return customMessage ? customMessage : 'Please make sure the fields match.'
-					}
+					},
+					notPalindrome: 'Yo, banana boy! Please enter a palindrome.'
 				}
 			});
 

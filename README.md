@@ -228,14 +228,21 @@ You can see this feature in action with the *Confirm Password* field on [the dem
 
 ### Adding custom validations
 
+Assign an attribute fields that require custom validation. `data-bouncer-custom-validations` contains a space separated list of validator names.
+
 Pass in a `customValidations` object as an option when instantiating a new Bouncer instance. Each property in the object is a new validation type. Each value should be a function that accepts two arguments: the field being validated and the settings for the current instantiation.
 
 The function should *check if the field has an error*. Return `true` if there's an error, and `false` when there's not.
 
+```html
+<label>Must enter hello</label>
+<input type="text" data-bouncer-custom-validations="hello">
+```
+
 ```js
 var validate = new Bouncer('form', {
 	customValidations: {
-		isHello: function (field) {
+		hello: function (field) {
 
 			// Return false because there is NO error
 			if (field.value === 'hello') return false;
@@ -257,7 +264,7 @@ The key should be the same as your custom validation. It's value can be a string
 ```js
 var validate = new Bouncer('form', {
 	customValidations: {
-		isHello: function (field) {
+		hello: function (field) {
 
 			// Return false because there is NO error
 			if (field.value === 'hello') return false;
@@ -269,10 +276,10 @@ var validate = new Bouncer('form', {
 	},
 	messages: {
 		// As a string
-		isHello: 'This field should have a value of "hello"',
+		hello: 'This field should have a value of "hello"',
 
 		// As a function
-		isHello: function () {
+		hello: function () {
 			return 'This field should have a value of "hello"';
 		}
 	}
