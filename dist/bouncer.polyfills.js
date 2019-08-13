@@ -1,5 +1,5 @@
 /*!
- * formbouncerjs v1.4.5
+ * formbouncerjs v1.4.6
  * A lightweight form validation script that augments native HTML5 form validation elements and attributes.
  * (c) 2019 Chris Ferdinandi
  * MIT License
@@ -743,7 +743,14 @@ if (!Element.prototype.matches) {
 
 		// If the message should come after the field
 		if (settings.messageAfterField) {
+
+			// If there's no next sibling, create one
+			if (!target.nextSibling) {
+				target.parentNode.appendChild(document.createTextNode(''));
+			}
+
 			return target.nextSibling;
+
 		}
 
 		// If it should come before
