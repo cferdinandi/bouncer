@@ -488,7 +488,7 @@
 	};
 
 	/**
-	 * Get the error message test
+	 * Get the error message text
 	 * @param  {Node}            field    The field to get an error message for
 	 * @param  {Object}          errors   The errors on the field
 	 * @param  {Object}          settings The plugin settings
@@ -501,30 +501,47 @@
 
 		// Missing value error
 		if (errors.missingValue) {
-			return messages.missingValue[field.type] || messages.missingValue.default;
+			return field.getAttribute(settings.messageCustom + '-missing-value')
+				|| messages.missingValue[field.type]
+				|| messages.missingValue.default;
 		}
 
 		// Numbers that are out of range
 		if (errors.outOfRange) {
-			return messages.outOfRange[errors.outOfRange].replace('{max}', field.getAttribute('max')).replace('{min}', field.getAttribute('min')).replace('{length}', field.value.length);
+			var msg = field.getAttribute(settings.messageCustom + '-out-of-range-' + errors.outOfRange)
+				|| field.getAttribute(settings.messageCustom + '-out-of-range')
+				|| messages.outOfRange;
+			if (typeof msg !== 'string') {
+				msg = msg[errors.outOfRange] || messages.fallback;
+			}
+			return msg.replace('{max}', field.getAttribute('max')).replace('{min}', field.getAttribute('min')).replace('{length}', field.value.length);
 		}
 
 		// Values that are too long or short
 		if (errors.wrongLength) {
-			return messages.wrongLength[errors.wrongLength].replace('{maxLength}', field.getAttribute('maxlength')).replace('{minLength}', field.getAttribute('minlength')).replace('{length}', field.value.length);
+			var msg = field.getAttribute(settings.messageCustom + '-wrong-length-' + errors.wrongLength)
+				|| field.getAttribute(settings.messageCustom + '-wrong-length')
+				|| messages.wrongLength;
+			if (typeof msg !== 'string') {
+				msg = msg[errors.wrongLength] || messages.fallback;
+			}
+			return msg.replace('{maxLength}', field.getAttribute('maxlength')).replace('{minLength}', field.getAttribute('minlength')).replace('{length}', field.value.length);
 		}
 
 		// Pattern mismatch error
 		if (errors.patternMismatch) {
-			var custom = field.getAttribute(settings.messageCustom);
-			if (custom) return custom;
-			return messages.patternMismatch[field.type] || messages.patternMismatch.default;
+			return field.getAttribute(settings.messageCustom + '-pattern-mismatch')
+				|| field.getAttribute(settings.messageCustom)
+				|| messages.patternMismatch[field.type]
+				|| messages.patternMismatch.default;
 		}
 
 		// Custom validations
 		for (var test in settings.customValidations) {
 			if (settings.customValidations.hasOwnProperty(test)) {
-				if (errors[test] && messages[test]) return messages[test];
+				if (errors[test]) {
+					return customMessages[test] || messages[test] || messages.fallback;
+				}
 			}
 		}
 

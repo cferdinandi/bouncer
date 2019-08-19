@@ -238,6 +238,12 @@
 						</label>
 					</div>
 
+					<div>
+						<label for="age">Age with min max and custom message <span class="pattern">Must be between 13 and 65</span></label>
+						<input type="number" min="13" max="65" name="age" id="age" required
+						   data-bouncer-message='{"missingValue": "You must provide your age", "outOfRange":{"over": "You are too old.", "under": "You are too young."}}'>
+					</div>
+
 					<input type="submit" class="button" value="Submit">
 				</form>
 			</section>

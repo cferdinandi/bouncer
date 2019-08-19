@@ -175,13 +175,33 @@ You can use your own validation pattern for a field with the `pattern` attribute
 
 ### Custom Pattern Mismatch Error Messages
 
-Show custom errors for pattern mismatches by adding the `[data-bouncer-message]` attribute to the field.
+Show custom errors for pattern mismatches by adding the `[data-bouncer-message]` attribute to the field and setting it to a string value.
 
 ```html
 <!-- Phone number be in 555-555-5555 format -->
 <input type="text" name="tel" pattern="\d{3}[\-]\d{3}[\-]\d{4}" data-bouncer-message="Please use the following format: 555-555-5555">
 ```
 
+### Custom Error Messages
+
+Show field-specific custom messages for any validation errors by adding the `[data-bouncer-message-*]` attributes to the input.
+
+* `data-bouncer-message-missing-value`
+* `data-bouncer-message-out-of-range` (used for both over and under)
+* `data-bouncer-message-out-of-range-over`
+* `data-bouncer-message-out-of-range-under`
+* `data-bouncer-message-wrong-length` (used for both over and under)
+* `data-bouncer-message-wrong-length-over`
+* `data-bouncer-message-wrong-length-under`
+* `data-bouncer-message-pattern-mismatch` (or `data-bouncer-message` for compatibility)
+
+```html
+<!-- Age must be between 13 and 65 yrs. -->
+<input type="number" name="age" min="13" max="65" required
+	data-bouncer-message-missing-value="You must provide your age"
+	data-bouncer-message-out-of-range-over="You are too old."
+	data-bouncer-message-out-of-range-under="You are too young.">
+```
 
 
 ## Error Styling
