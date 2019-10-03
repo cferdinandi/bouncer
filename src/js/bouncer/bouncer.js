@@ -630,12 +630,12 @@
 	 */
 	var removeError = function (field, settings) {
 
-		// Get the error message for this field
+		// Find and remove the error message for this field
 		var error = field.form.querySelector('#' + escapeCharacters(settings.errorPrefix + getFieldID(field, settings)));
-		if (!error) return;
+		if (error) {
+			error.parentNode.removeChild(error);
+		}
 
-		// Remove the error
-		error.parentNode.removeChild(error);
 
 		// Remove error and a11y from the field
 		removeErrorAttributes(field, settings);
