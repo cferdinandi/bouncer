@@ -335,7 +335,7 @@ var validate = new Bouncer('form', {
 
 	// Message Settings
 	messageAfterField: true, // If true, displays error message below field. If false, displays it above.
-	messageCustom: 'data-bouncer-message', // The data attribute to use for customer error messages
+	messageCustom: 'data-bouncer-message', // The data attribute to use for custom error messages
 	messageTarget: 'data-bouncer-target', // The data attribute to pass in a custom selector for the field error location
 
 	// Error messages by error type
