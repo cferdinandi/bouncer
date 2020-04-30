@@ -1,7 +1,7 @@
 /*!
  * formbouncerjs v1.4.6
  * A lightweight form validation script that augments native HTML5 form validation elements and attributes.
- * (c) 2019 Chris Ferdinandi
+ * (c) 2020 Chris Ferdinandi
  * MIT License
  * http://github.com/cferdinandi/bouncer
  */
@@ -707,11 +707,10 @@
 			// If valid, remove any error messages
 			if (isValid.valid) {
 				removeError(field, _settings);
-				return;
+			} else if (!_settings.dontShowErrors) {
+				// Otherwise, show an error message
+				showError(field, isValid.errors, _settings);
 			}
-
-			// Otherwise, show an error message
-			showError(field, isValid.errors, _settings);
 
 			return isValid;
 
@@ -727,6 +726,20 @@
 				var validate = publicAPIs.validate(field);
 				return validate && !validate.valid;
 			}));
+		};
+
+		/**
+		 * Validate all fields in a form or section
+		 * @param  {Node} target The form or section to validate fields in
+		 * @return {Array}       An array of fields with errors
+		 */
+		publicAPIs.isValid = function (target) {
+			return Array.prototype.reduce.call(target.querySelectorAll('input, select, textarea'), (function (valid, field) {
+				var validate = publicAPIs.validate(field, {
+					dontShowErrors: true
+				});
+				return valid && validate && validate.valid;
+			}), true);
 		};
 
 		/**
