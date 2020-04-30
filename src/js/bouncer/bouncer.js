@@ -721,9 +721,9 @@
 		};
 
 		/**
-		 * Validate all fields in a form or section
+		 * Check if all fields in a form or section are valid
 		 * @param  {Node} target The form or section to validate fields in
-		 * @return {Array}       An array of fields with errors
+		 * @return {boolean} Whether the whole form is valid or not
 		 */
 		publicAPIs.isValid = function (target) {
 			return Array.prototype.reduce.call(target.querySelectorAll('input, select, textarea'), function (valid, field) {
