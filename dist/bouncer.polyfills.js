@@ -1,7 +1,7 @@
 /*!
  * formbouncerjs v1.4.6
  * A lightweight form validation script that augments native HTML5 form validation elements and attributes.
- * (c) 2019 Chris Ferdinandi
+ * (c) 2020 Chris Ferdinandi
  * MIT License
  * http://github.com/cferdinandi/bouncer
  */
@@ -369,6 +369,9 @@ if (!Element.prototype.matches) {
 
 		// Form Submission
 		disableSubmit: false,
+		
+		// Allow blur/click/input events to be opt-out
+		validateOnBlur: true,
 
 		// Custom Events
 		emitEvents: true
@@ -1084,9 +1087,12 @@ if (!Element.prototype.matches) {
 		publicAPIs.destroy = function () {
 
 			// Remove event listeners
-			document.removeEventListener('blur', blurHandler, true);
-			document.removeEventListener('input', inputHandler, false);
-			document.removeEventListener('click', inputHandler, false);
+			if (settings.validateOnBlur) {
+				document.removeEventListener('blur', blurHandler, true);
+				document.removeEventListener('input', inputHandler, false);
+				document.removeEventListener('click', inputHandler, false);
+			}
+			
 			document.removeEventListener('submit', submitHandler, false);
 
 			// Remove all errors
@@ -1119,9 +1125,12 @@ if (!Element.prototype.matches) {
 			addNoValidate(selector);
 
 			// Event Listeners
-			document.addEventListener('blur', blurHandler, true);
-			document.addEventListener('input', inputHandler, false);
-			document.addEventListener('click', inputHandler, false);
+			if (settings.validateOnBlur) {
+				document.addEventListener('blur', blurHandler, true);
+				document.addEventListener('input', inputHandler, false);
+				document.addEventListener('click', inputHandler, false);
+			}
+			
 			document.addEventListener('submit', submitHandler, false);
 
 			// Emit custom event
