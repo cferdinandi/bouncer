@@ -74,6 +74,9 @@
 
 		// Form Submission
 		disableSubmit: false,
+		
+		// Allow blur/click/input events to be opt-out
+		validateOnBlur: true,
 
 		// Custom Events
 		emitEvents: true
@@ -789,9 +792,12 @@
 		publicAPIs.destroy = function () {
 
 			// Remove event listeners
-			document.removeEventListener('blur', blurHandler, true);
-			document.removeEventListener('input', inputHandler, false);
-			document.removeEventListener('click', inputHandler, false);
+			if (settings.validateOnBlur) {
+				document.removeEventListener('blur', blurHandler, true);
+				document.removeEventListener('input', inputHandler, false);
+				document.removeEventListener('click', inputHandler, false);
+			}
+			
 			document.removeEventListener('submit', submitHandler, false);
 
 			// Remove all errors
@@ -824,9 +830,12 @@
 			addNoValidate(selector);
 
 			// Event Listeners
-			document.addEventListener('blur', blurHandler, true);
-			document.addEventListener('input', inputHandler, false);
-			document.addEventListener('click', inputHandler, false);
+			if (settings.validateOnBlur) {
+				document.addEventListener('blur', blurHandler, true);
+				document.addEventListener('input', inputHandler, false);
+				document.addEventListener('click', inputHandler, false);
+			}
+			
 			document.addEventListener('submit', submitHandler, false);
 
 			// Emit custom event
