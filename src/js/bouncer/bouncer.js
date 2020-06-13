@@ -534,6 +534,11 @@
 			}
 		}
 
+                // Custom message, passed directly in
+                if (errors.customMessage) {
+                        return errors.customMessage;
+                }
+
 		// Fallback error message
 		return messages.fallback;
 
@@ -684,6 +689,18 @@
 		//
 		// Methods
 		//
+		
+		/**
+         	* Show an error message in the DOM
+         	* @param  {Node} field      The field to show an error message for
+         	* @param  {Object}          errors   The errors on the field
+         	* @param  {Object}          options Additional plugin settings
+         	*/
+        	publicAPIs.showError = function (field, errors, options) {
+                        var _settings = extend(settings, options || {});
+
+                        return showError(field, errors, _settings)
+        	};
 
 		/**
 		 * Validate a field
