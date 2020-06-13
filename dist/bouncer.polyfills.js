@@ -373,6 +373,9 @@ if (!Element.prototype.matches) {
 		// Allow blur/click/input events to be opt-out
 		validateOnBlur: true,
 
+		// Allow validation to be turned off altogether. Useful for server-side validation use.
+        validateOnSubmit: true,
+
 		// Custom Events
 		emitEvents: true
 
@@ -826,6 +829,11 @@ if (!Element.prototype.matches) {
 			}
 		}
 
+        // Custom message, passed directly in
+        if (errors.customMessage) {
+            return errors.customMessage;
+        }
+
 		// Fallback error message
 		return messages.fallback;
 
@@ -976,6 +984,29 @@ if (!Element.prototype.matches) {
 		//
 		// Methods
 		//
+		
+		/**
+         * Show an error message in the DOM
+         * @param  {Node} field      The field to show an error message for
+         * @param  {Object}          errors   The errors on the field
+         * @param  {Object}          options Additional plugin settings
+         */
+        publicAPIs.showError = function (field, errors, options) {
+            var _settings = extend(settings, options || {});
+
+            return showError(field, errors, _settings)
+        };
+
+		/**
+		 * Remove an error message from the DOM
+		 * @param  {Node} field      The field with the error message
+		 * @param  {Object} settings The plugin settings
+		 */
+		publicAPIs.removeError = function (field, options) {
+			var _settings = extend(settings, options || {});
+
+			return removeError(field, _settings);
+		};
 
 		/**
 		 * Validate a field
@@ -1093,7 +1124,9 @@ if (!Element.prototype.matches) {
 				document.removeEventListener('click', inputHandler, false);
 			}
 			
-			document.removeEventListener('submit', submitHandler, false);
+			if (settings.validateOnSubmit) {
+				document.removeEventListener('submit', submitHandler, false);
+			}
 
 			// Remove all errors
 			removeAllErrors(selector, settings);
@@ -1131,7 +1164,9 @@ if (!Element.prototype.matches) {
 				document.addEventListener('click', inputHandler, false);
 			}
 			
-			document.addEventListener('submit', submitHandler, false);
+			if (settings.validateOnSubmit) {
+				document.addEventListener('submit', submitHandler, false);
+			}
 
 			// Emit custom event
 			if (settings.emitEvents) {

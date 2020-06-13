@@ -79,7 +79,7 @@
 		validateOnBlur: true,
 
 		// Allow validation to be turned off altogether. Useful for server-side validation use.
-        	validateOnSubmit: true,
+        validateOnSubmit: true,
 
 		// Custom Events
 		emitEvents: true
@@ -534,10 +534,10 @@
 			}
 		}
 
-                // Custom message, passed directly in
-                if (errors.customMessage) {
-                        return errors.customMessage;
-                }
+        // Custom message, passed directly in
+        if (errors.customMessage) {
+            return errors.customMessage;
+        }
 
 		// Fallback error message
 		return messages.fallback;
@@ -691,16 +691,16 @@
 		//
 		
 		/**
-         	* Show an error message in the DOM
-         	* @param  {Node} field      The field to show an error message for
-         	* @param  {Object}          errors   The errors on the field
-         	* @param  {Object}          options Additional plugin settings
-         	*/
-        	publicAPIs.showError = function (field, errors, options) {
-                        var _settings = extend(settings, options || {});
+         * Show an error message in the DOM
+         * @param  {Node} field      The field to show an error message for
+         * @param  {Object}          errors   The errors on the field
+         * @param  {Object}          options Additional plugin settings
+         */
+        publicAPIs.showError = function (field, errors, options) {
+            var _settings = extend(settings, options || {});
 
-                        return showError(field, errors, _settings)
-        	};
+            return showError(field, errors, _settings)
+        };
 
 		/**
 		 * Remove an error message from the DOM
