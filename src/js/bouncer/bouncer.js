@@ -703,6 +703,17 @@
         	};
 
 		/**
+		 * Remove an error message from the DOM
+		 * @param  {Node} field      The field with the error message
+		 * @param  {Object} settings The plugin settings
+		 */
+		publicAPIs.removeError = function (field, options) {
+			var _settings = extend(settings, options || {});
+
+			return removeError(field, _settings);
+		};
+
+		/**
 		 * Validate a field
 		 * @param  {Node} field     The field to validate
 		 * @param  {Object} options Validation options
