@@ -78,6 +78,9 @@
 		// Allow blur/click/input events to be opt-out
 		validateOnBlur: true,
 
+		// Allow validation to be turned off altogether. Useful for server-side validation use.
+        	validateOnSubmit: true,
+
 		// Custom Events
 		emitEvents: true
 
@@ -798,7 +801,9 @@
 				document.removeEventListener('click', inputHandler, false);
 			}
 			
-			document.removeEventListener('submit', submitHandler, false);
+			if (settings.validateOnSubmit) {
+				document.removeEventListener('submit', submitHandler, false);
+			}
 
 			// Remove all errors
 			removeAllErrors(selector, settings);
@@ -836,7 +841,9 @@
 				document.addEventListener('click', inputHandler, false);
 			}
 			
-			document.addEventListener('submit', submitHandler, false);
+			if (settings.validateOnSubmit) {
+				document.addEventListener('submit', submitHandler, false);
+			}
 
 			// Emit custom event
 			if (settings.emitEvents) {
