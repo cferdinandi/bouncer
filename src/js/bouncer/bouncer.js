@@ -75,6 +75,12 @@
 		// Form Submission
 		disableSubmit: false,
 
+		// Validation enable/disable
+		disableValidateOnBlur: false,
+		disableValidateOnInput: false,
+		disableValidateOnClick: false,
+		disableValidateOnSubmit: false,
+
 		// Custom Events
 		emitEvents: true
 
@@ -789,10 +795,10 @@
 		publicAPIs.destroy = function () {
 
 			// Remove event listeners
-			document.removeEventListener('blur', blurHandler, true);
-			document.removeEventListener('input', inputHandler, false);
-			document.removeEventListener('click', inputHandler, false);
-			document.removeEventListener('submit', submitHandler, false);
+			if (! settings.disableValidateOnBlur) document.removeEventListener('blur', blurHandler, true);
+			if (! settings.disableValidateOnInput) document.removeEventListener('input', inputHandler, false);
+			if (! settings.disableValidateOnClick) document.removeEventListener('click', inputHandler, false);
+			if (! settings.disableValidateOnSubmit) document.removeEventListener('submit', submitHandler, false);
 
 			// Remove all errors
 			removeAllErrors(selector, settings);
@@ -824,10 +830,10 @@
 			addNoValidate(selector);
 
 			// Event Listeners
-			document.addEventListener('blur', blurHandler, true);
-			document.addEventListener('input', inputHandler, false);
-			document.addEventListener('click', inputHandler, false);
-			document.addEventListener('submit', submitHandler, false);
+			if (! settings.disableValidateOnBlur) document.addEventListener('blur', blurHandler, true);
+			if (! settings.disableValidateOnInput) document.addEventListener('input', inputHandler, false);
+			if (! settings.disableValidateOnClick) document.addEventListener('click', inputHandler, false);
+			if (! settings.disableValidateOnSubmit) document.addEventListener('submit', submitHandler, false);
 
 			// Emit custom event
 			if (settings.emitEvents) {
