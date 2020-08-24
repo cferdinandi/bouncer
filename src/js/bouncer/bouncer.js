@@ -506,12 +506,20 @@
 
 		// Numbers that are out of range
 		if (errors.outOfRange) {
-			return messages.outOfRange[errors.outOfRange].replace('{max}', field.getAttribute('max')).replace('{min}', field.getAttribute('min')).replace('{length}', field.value.length);
+			var message = messages.outOfRange[errors.outOfRange];
+			if (message instanceof String) {
+				message = message.replace('{max}', field.getAttribute('max')).replace('{min}', field.getAttribute('min')).replace('{length}', field.value.length);
+			}
+			return message;
 		}
 
 		// Values that are too long or short
 		if (errors.wrongLength) {
-			return messages.wrongLength[errors.wrongLength].replace('{maxLength}', field.getAttribute('maxlength')).replace('{minLength}', field.getAttribute('minlength')).replace('{length}', field.value.length);
+			var message = messages.wrongLength[errors.wrongLength];
+			if (message instanceof String) {
+				message = message.replace('{maxLength}', field.getAttribute('maxlength')).replace('{minLength}', field.getAttribute('minlength')).replace('{length}', field.value.length);
+			}
+			return message;
 		}
 
 		// Pattern mismatch error
