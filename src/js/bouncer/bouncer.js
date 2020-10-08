@@ -75,6 +75,13 @@
 		// Form Submission
 		disableSubmit: false,
 
+		// Validation enable/disable
+		disableValidateOnBlur: false,
+		disableValidateOnInput: false,
+		disableValidateOnClick: false,
+		disableValidateOnSubmit: false,
+		disableValidateReadonly: true,
+
 		// Custom Events
 		emitEvents: true
 
@@ -506,12 +513,20 @@
 
 		// Numbers that are out of range
 		if (errors.outOfRange) {
-			return messages.outOfRange[errors.outOfRange].replace('{max}', field.getAttribute('max')).replace('{min}', field.getAttribute('min')).replace('{length}', field.value.length);
+			var message = messages.outOfRange[errors.outOfRange];
+			if (message instanceof String) {
+				message = message.replace('{max}', field.getAttribute('max')).replace('{min}', field.getAttribute('min')).replace('{length}', field.value.length);
+			}
+			return message;
 		}
 
 		// Values that are too long or short
 		if (errors.wrongLength) {
-			return messages.wrongLength[errors.wrongLength].replace('{maxLength}', field.getAttribute('maxlength')).replace('{minLength}', field.getAttribute('minlength')).replace('{length}', field.value.length);
+			var message = messages.wrongLength[errors.wrongLength];
+			if (message instanceof String) {
+				message = message.replace('{maxLength}', field.getAttribute('maxlength')).replace('{minLength}', field.getAttribute('minlength')).replace('{length}', field.value.length);
+			}
+			return message;
 		}
 
 		// Pattern mismatch error
@@ -687,11 +702,11 @@
 		 */
 		publicAPIs.validate = function (field, options) {
 
-			// Don't validate submits, buttons, file and reset inputs, and disabled and readonly fields
-			if (field.disabled || field.readOnly || field.type === 'reset' || field.type === 'submit' || field.type === 'button') return;
-
 			// Local settings
 			var _settings = extend(settings, options || {});
+
+			// Don't validate submits, buttons, file and reset inputs, and disabled and readonly fields
+			if (field.disabled || (field.readOnly && _settings.disableValidateReadonly) || field.type === 'reset' || field.type === 'submit' || field.type === 'button') return;
 
 			// Check for errors
 			var isValid = getErrors(field, _settings);
@@ -789,10 +804,10 @@
 		publicAPIs.destroy = function () {
 
 			// Remove event listeners
-			document.removeEventListener('blur', blurHandler, true);
-			document.removeEventListener('input', inputHandler, false);
-			document.removeEventListener('click', inputHandler, false);
-			document.removeEventListener('submit', submitHandler, false);
+			if (! settings.disableValidateOnBlur) document.removeEventListener('blur', blurHandler, true);
+			if (! settings.disableValidateOnInput) document.removeEventListener('input', inputHandler, false);
+			if (! settings.disableValidateOnClick) document.removeEventListener('click', inputHandler, false);
+			if (! settings.disableValidateOnSubmit) document.removeEventListener('submit', submitHandler, false);
 
 			// Remove all errors
 			removeAllErrors(selector, settings);
@@ -824,10 +839,10 @@
 			addNoValidate(selector);
 
 			// Event Listeners
-			document.addEventListener('blur', blurHandler, true);
-			document.addEventListener('input', inputHandler, false);
-			document.addEventListener('click', inputHandler, false);
-			document.addEventListener('submit', submitHandler, false);
+			if (! settings.disableValidateOnBlur) document.addEventListener('blur', blurHandler, true);
+			if (! settings.disableValidateOnInput) document.addEventListener('input', inputHandler, false);
+			if (! settings.disableValidateOnClick) document.addEventListener('click', inputHandler, false);
+			if (! settings.disableValidateOnSubmit) document.addEventListener('submit', submitHandler, false);
 
 			// Emit custom event
 			if (settings.emitEvents) {
