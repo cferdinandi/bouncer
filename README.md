@@ -317,6 +317,7 @@ var validate = new Bouncer('form', {
 
 	// Classes & IDs
 	fieldClass: 'error', // Applied to fields with errors
+	errorTag: 'div', // HTML tag to be rendered for error message
 	errorClass: 'error-message', // Applied to the error message for invalid fields
 	fieldPrefix: 'bouncer-field_', // If a field doesn't have a name or ID, one is generated with this prefix
 	errorPrefix: 'bouncer-error_', // Prefix used for error message IDs
@@ -468,7 +469,7 @@ bouncer.validate(field, {
 
 #### `validateAll()`
 
-Validate all fields in a form or fieldset. Pass in the section as an argument. Returns an array of fields with errors.
+Validate all fields in a form or fieldset. Pass in either a selector (string), a Nodelist or an Element as argument. Without passing an argument, the initial target list (selector) will be used. Returns an array of fields with errors.
 
 ```js
 // Get a fieldset
@@ -477,6 +478,14 @@ var fieldset = document.querySelector('#fieldset');
 // Validate the field
 var bouncer = new Bouncer();
 var areValid = bouncer.validateAll(fieldset);
+```
+
+or
+
+```js
+// Validate all fields of the initial selector
+var bouncer = new Bouncer('form');
+var areValid = bouncer.validateAll();
 ```
 
 #### `destroy()`

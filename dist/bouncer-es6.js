@@ -7,12 +7,7 @@
  */
 
 /*  Bouncer ES6 Class
- *  ported by Kristof Zerbe
- *  
- *  Further changes:
- *  - Custom Messages for all types in getErrorMessage()
- * 	- Extended validateAll()
- *  - Introducing settings.errorElement
+ *  ported by Kristof Zerbe: https://github.com/kristofzerbe/bouncer
  */
 class Bouncer {
 
@@ -55,7 +50,7 @@ class Bouncer {
 
             // Classes & IDs
             fieldClass: 'error',
-			errorElement: 'div',
+			errorTag: 'div',
             errorClass: 'error-message',
             fieldPrefix: 'bouncer-field_',
             errorPrefix: 'bouncer-error_',
@@ -214,13 +209,13 @@ class Bouncer {
     validateAll(target) {
         const self = this;
 
-		if (target === undefined) { // target is not provided: take initialized targets
+		if (target === undefined) { // target is not provided: take initialized targets (Nodelist)
 			target = this.targets;
 		} else { 
-			if (typeof target === "string") { // target is as string selector: get elements
+			if (typeof target === "string") { // target is as string selector: get Elements (Nodelist)
 				target = document.querySelectorAll(target);
 			}
-			if (target instanceof Element) { // target is an element: create array with element for iteration
+			if (target instanceof Element) { // target is an Element: create array with element for iteration
 				let n = [];
 				n.push(target);
 				target = n;
@@ -650,7 +645,7 @@ class Bouncer {
 	createError(field, settings) {
 
 		// Create the error message
-		let error = document.createElement(settings.errorElement);
+		let error = document.createElement(settings.errorTag);
 		error.className = settings.errorClass;
 		error.id = settings.errorPrefix + this.getFieldID(field, settings, true);
 
