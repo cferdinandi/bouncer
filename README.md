@@ -173,16 +173,16 @@ You can use your own validation pattern for a field with the `pattern` attribute
 <input type="text" name="tel" pattern="\d{3}[\-]\d{3}[\-]\d{4}">
 ```
 
-### Custom Pattern Mismatch Error Messages
+### Custom Error Messages
 
-Show custom errors for pattern mismatches by adding the `[data-bouncer-message]` attribute to the field.
+Show custom errors for by adding the `[data-bouncer-message]` attribute to the field.
 
 ```html
 <!-- Phone number be in 555-555-5555 format -->
 <input type="text" name="tel" pattern="\d{3}[\-]\d{3}[\-]\d{4}" data-bouncer-message="Please use the following format: 555-555-5555">
+<!-- Text is required -->
+<input type="text" name="text" data-bouncer-message="Text is required" required>
 ```
-
-
 
 ## Error Styling
 

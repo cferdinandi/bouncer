@@ -7,8 +7,6 @@ var settings = {
 	clean: true,
 	scripts: true,
 	polyfills: true,
-	styles: false,
-	svgs: false,
 	copy: true,
 	reload: true
 };
@@ -23,16 +21,9 @@ var paths = {
 	output: 'dist/',
 	scripts: {
 		input: 'src/js/*',
+		input_ES6: 'src/es6/*',
 		polyfills: '.polyfill.js',
 		output: 'dist/'
-	},
-	styles: {
-		input: 'src/sass/**/*.{scss,sass}',
-		output: 'dist/css/'
-	},
-	svgs: {
-		input: 'src/svg/*.svg',
-		output: 'dist/svg/'
 	},
 	copy: {
 		input: 'src/copy/*',
@@ -85,14 +76,6 @@ var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
 var optimizejs = require('gulp-optimize-js');
 
-// Styles
-var sass = require('gulp-sass');
-var prefix = require('gulp-autoprefixer');
-var minify = require('gulp-cssnano');
-
-// SVGs
-var svgmin = require('gulp-svgmin');
-
 // BrowserSync
 var browserSync = require('browser-sync');
 
@@ -120,11 +103,11 @@ var cleanDist = function (done) {
 // Repeated JavaScript tasks
 var jsTasks = lazypipe()
 	.pipe(header, banner.full, {package: package})
-	.pipe(optimizejs)
+	//.pipe(optimizejs)
 	.pipe(dest, paths.scripts.output)
 	.pipe(rename, {suffix: '.min'})
 	.pipe(uglify)
-	.pipe(optimizejs)
+	//.pipe(optimizejs)
 	.pipe(header, banner.min, {package: package})
 	.pipe(dest, paths.scripts.output);
 
@@ -177,6 +160,38 @@ var buildScripts = function (done) {
 
 };
 
+// Lint, minify, and concatenate ES6 scripts
+var buildScripts_ES6 = function (done) {
+
+	// Make sure this feature is activated before running
+	if (!settings.scripts) return done();
+
+		// Run tasks on script files
+		src(paths.scripts.input_ES6)
+		.pipe(flatmap(function(stream, file) {
+
+			// If the file is a directory
+			if (file.isDirectory()) {
+
+				// Grab all files and concatenate them
+				// If separate polyfills enabled, this will have .polyfills in the filename
+				src(file.path + '/*.js')
+					.pipe(concat(file.relative + '.js'))
+					.pipe(jsTasks());
+
+				return stream;
+			}
+
+			// Otherwise, process the file
+			return stream.pipe(jsTasks());
+
+		}));
+
+	// Signal completion
+	done();
+
+}
+
 // Lint scripts
 var lintScripts = function (done) {
 
@@ -187,55 +202,6 @@ var lintScripts = function (done) {
 	src(paths.scripts.input)
 		.pipe(jshint())
 		.pipe(jshint.reporter('jshint-stylish'));
-
-	// Signal completion
-	done();
-
-};
-
-// Process, lint, and minify Sass files
-var buildStyles = function (done) {
-
-	// Make sure this feature is activated before running
-	if (!settings.styles) return done();
-
-	// Run tasks on all Sass files
-	src(paths.styles.input)
-		.pipe(sass({
-			outputStyle: 'expanded',
-			sourceComments: true
-		}))
-		.pipe(prefix({
-			browsers: ['last 2 version', '> 0.25%'],
-			cascade: true,
-			remove: true
-		}))
-		.pipe(header(banner.full, { package : package }))
-		.pipe(dest(paths.styles.output))
-		.pipe(rename({suffix: '.min'}))
-		.pipe(minify({
-			discardComments: {
-				removeAll: true
-			}
-		}))
-		.pipe(header(banner.min, { package : package }))
-		.pipe(dest(paths.styles.output));
-
-	// Signal completion
-	done();
-
-};
-
-// Optimize SVG files
-var buildSVGs = function (done) {
-
-	// Make sure this feature is activated before running
-	if (!settings.svgs) return done();
-
-	// Optimize SVG files
-	src(paths.svgs.input)
-		.pipe(svgmin())
-		.pipe(dest(paths.svgs.output));
 
 	// Signal completion
 	done();
@@ -299,9 +265,8 @@ exports.default = series(
 	cleanDist,
 	parallel(
 		buildScripts,
+		buildScripts_ES6,
 		lintScripts,
-		buildStyles,
-		buildSVGs,
 		copyFiles
 	)
 );

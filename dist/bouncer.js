@@ -1,22 +1,22 @@
 /*!
  * formbouncerjs v1.4.6
  * A lightweight form validation script that augments native HTML5 form validation elements and attributes.
- * (c) 2019 Chris Ferdinandi
+ * (c) 2021 Chris Ferdinandi
  * MIT License
  * http://github.com/cferdinandi/bouncer
  */
 
 (function (root, factory) {
 	if ( typeof define === 'function' && define.amd ) {
-		define([], (function () {
+		define([], function () {
 			return factory(root);
-		}));
+		});
 	} else if ( typeof exports === 'object' ) {
 		module.exports = factory(root);
 	} else {
 		root.Bouncer = factory(root);
 	}
-})(typeof global !== 'undefined' ? global : typeof window !== 'undefined' ? window : this, (function (window) {
+})(typeof global !== 'undefined' ? global : typeof window !== 'undefined' ? window : this, function (window) {
 
 	'use strict';
 
@@ -109,7 +109,7 @@
 	 */
 	var extend = function () {
 		var merged = {};
-		forEach(arguments, (function (obj) {
+		forEach(arguments, function (obj) {
 			for (var key in obj) {
 				if (!obj.hasOwnProperty(key)) return;
 				if (Object.prototype.toString.call(obj[key]) === '[object Object]') {
@@ -119,7 +119,7 @@
 				}
 				// merged[key] = obj[key];
 			}
-		}));
+		});
 		return merged;
 	};
 
@@ -144,18 +144,18 @@
 	 * @param {Boolean} remove  If true, remove the `novalidate` attribute
 	 */
 	var addNoValidate = function (selector) {
-		forEach(document.querySelectorAll(selector), (function (form) {
+		forEach(document.querySelectorAll(selector), function (form) {
 			form.setAttribute('novalidate', true);
-		}));
+		});
 	};
 
 	/**
 	 * Remove the `novalidate` attribute to all forms
 	 */
 	var removeNoValidate = function (selector) {
-		forEach(document.querySelectorAll(selector), (function (form) {
+		forEach(document.querySelectorAll(selector), function (form) {
 			form.removeAttribute('novalidate');
-		}));
+		});
 	};
 
 	/**
@@ -178,9 +178,9 @@
 
 		// Handle radio buttons
 		if (field.type === 'radio') {
-			length = Array.prototype.filter.call(field.form.querySelectorAll('[name="' + escapeCharacters(field.name) + '"]'), (function (btn) {
+			length = Array.prototype.filter.call(field.form.querySelectorAll('[name="' + escapeCharacters(field.name) + '"]'), function (btn) {
 				return btn.checked;
-			})).length;
+			}).length;
 		}
 
 		// Check for value
@@ -563,9 +563,9 @@
 
 		// If field is a radio button, add attributes to every button in the group
 		if (field.type === 'radio' && field.name) {
-			Array.prototype.forEach.call(document.querySelectorAll('[name="' + field.name + '"]'), (function (button) {
+			Array.prototype.forEach.call(document.querySelectorAll('[name="' + field.name + '"]'), function (button) {
 				addErrorAttributes(button, error, settings);
-			}));
+			});
 		}
 
 		// Otherwise, add an error class and aria attribute to the field
@@ -620,9 +620,9 @@
 
 		// If field is a radio button, remove attributes from every button in the group
 		if (field.type === 'radio' && field.name) {
-			Array.prototype.forEach.call(document.querySelectorAll('[name="' + field.name + '"]'), (function (button) {
+			Array.prototype.forEach.call(document.querySelectorAll('[name="' + field.name + '"]'), function (button) {
 				removeAttributes(button, settings);
-			}));
+			});
 			return;
 		}
 
@@ -661,11 +661,11 @@
 	 * @param  {Object} settings The plugin settings
 	 */
 	var removeAllErrors = function (selector, settings) {
-		forEach(document.querySelectorAll(selector), (function (form) {
-			forEach(form.querySelectorAll('input, select, textarea'), (function (field) {
+		forEach(document.querySelectorAll(selector), function (form) {
+			forEach(form.querySelectorAll('input, select, textarea'), function (field) {
 				removeError(field, settings);
-			}));
-		}));
+			});
+		});
 	};
 
 	/**
@@ -723,10 +723,10 @@
 		 * @return {Array}       An array of fields with errors
 		 */
 		publicAPIs.validateAll = function (target) {
-			return Array.prototype.filter.call(target.querySelectorAll('input, select, textarea'), (function (field) {
+			return Array.prototype.filter.call(target.querySelectorAll('input, select, textarea'), function (field) {
 				var validate = publicAPIs.validate(field);
 				return validate && !validate.valid;
-			}));
+			});
 		};
 
 		/**
@@ -862,4 +862,4 @@
 
 	return Constructor;
 
-}));
+});

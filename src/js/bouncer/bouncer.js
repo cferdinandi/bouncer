@@ -22,6 +22,7 @@
 
 		fieldClass: 'error',
 		errorClass: 'error-message',
+		errorTag: 'div',
 		fieldPrefix: 'bouncer-field_',
 		errorPrefix: 'bouncer-error_',
 
@@ -135,8 +136,8 @@
 	 * Add the `novalidate` attribute to all forms
 	 * @param {Boolean} remove  If true, remove the `novalidate` attribute
 	 */
-	var addNoValidate = function (selector) {
-		forEach(document.querySelectorAll(selector), function (form) {
+	var addNoValidate = function (targets) {
+		forEach(targets, function (form) {
 			form.setAttribute('novalidate', true);
 		});
 	};
@@ -144,8 +145,8 @@
 	/**
 	 * Remove the `novalidate` attribute to all forms
 	 */
-	var removeNoValidate = function (selector) {
-		forEach(document.querySelectorAll(selector), function (form) {
+	var removeNoValidate = function (targets) {
+		forEach(targets, function (form) {
 			form.removeAttribute('novalidate');
 		});
 	};
@@ -472,7 +473,7 @@
 	var createError = function (field, settings) {
 
 		// Create the error message
-		var error = document.createElement('div');
+		var error = document.createElement(settings.errorTag);
 		error.className = settings.errorClass;
 		error.id = settings.errorPrefix + getFieldID(field, settings, true);
 
@@ -501,24 +502,48 @@
 
 		// Missing value error
 		if (errors.missingValue) {
-			return messages.missingValue[field.type] || messages.missingValue.default;
+            var msgMissingValue = messages.missingValue[field.type] || messages.missingValue.default;
+            
+            var customMissingValue = field.getAttribute(settings.messageCustom);
+			if (customMissingValue) msgMissingValue = customMissingValue;
+            
+            return msgMissingValue;
 		}
 
 		// Numbers that are out of range
 		if (errors.outOfRange) {
-			return messages.outOfRange[errors.outOfRange].replace('{max}', field.getAttribute('max')).replace('{min}', field.getAttribute('min')).replace('{length}', field.value.length);
+            var msgOutOfRange = messages.outOfRange[errors.outOfRange];
+
+            var customOutOfRange = field.getAttribute(settings.messageCustom);
+			if (customOutOfRange) msgOutOfRange = customOutOfRange;
+
+			return msgOutOfRange
+                .replace('{max}', field.getAttribute('max'))
+                .replace('{min}', field.getAttribute('min'))
+                .replace('{length}', field.value.length);
 		}
 
 		// Values that are too long or short
 		if (errors.wrongLength) {
-			return messages.wrongLength[errors.wrongLength].replace('{maxLength}', field.getAttribute('maxlength')).replace('{minLength}', field.getAttribute('minlength')).replace('{length}', field.value.length);
+            var msgWrongLength = messages.wrongLength[errors.wrongLength];
+            
+            var customWrongLength = field.getAttribute(settings.messageCustom);
+			if (customWrongLength) msgWrongLength = customWrongLength;
+            
+            return msgWrongLength
+                .replace('{maxLength}', field.getAttribute('maxlength'))
+                .replace('{minLength}', field.getAttribute('minlength'))
+                .replace('{length}', field.value.length);
 		}
 
 		// Pattern mismatch error
 		if (errors.patternMismatch) {
-			var custom = field.getAttribute(settings.messageCustom);
-			if (custom) return custom;
-			return messages.patternMismatch[field.type] || messages.patternMismatch.default;
+            var msgPatternMismatch = messages.patternMismatch[field.type] || messages.patternMismatch.default;
+			
+            var customPatternMismatch = field.getAttribute(settings.messageCustom);
+			if (customPatternMismatch) msgPatternMismatch = customPatternMismatch;
+			
+            return msgPatternMismatch
 		}
 
 		// Custom validations
@@ -652,8 +677,8 @@
 	 * @param  {String} selector The selector for the form
 	 * @param  {Object} settings The plugin settings
 	 */
-	var removeAllErrors = function (selector, settings) {
-		forEach(document.querySelectorAll(selector), function (form) {
+	var removeAllErrors = function (targets, settings) {
+		forEach(targets, function (form) {
 			forEach(form.querySelectorAll('input, select, textarea'), function (field) {
 				removeError(field, settings);
 			});
@@ -673,7 +698,7 @@
 
 		var publicAPIs = {};
 		var settings;
-
+		var targets = document.querySelectorAll(selector);
 
 		//
 		// Methods
@@ -715,10 +740,37 @@
 		 * @return {Array}       An array of fields with errors
 		 */
 		publicAPIs.validateAll = function (target) {
-			return Array.prototype.filter.call(target.querySelectorAll('input, select, textarea'), function (field) {
-				var validate = publicAPIs.validate(field);
-				return validate && !validate.valid;
+			// return Array.prototype.filter.call(target.querySelectorAll('input, select, textarea'), function (field) {
+			// 	var validate = publicAPIs.validate(field);
+			// 	return validate && !validate.valid;
+			// });
+
+			if (target === undefined) { // target is not provided: take initialized targets (Nodelist)
+				target = this.targets;
+			} else { 
+				if (typeof target === "string") { // target is as string selector: get Elements (Nodelist)
+					target = document.querySelectorAll(target);
+				}
+				if (target instanceof Element) { // target is an Element: create array with element for iteration
+					let n = [];
+					n.push(target);
+					target = n;
+				}
+			}
+	
+			let ret = [];
+			this.forEach(target, function(t) {
+				let elements = Array.prototype.filter.call(
+					t.querySelectorAll('input, select, textarea'), 
+					function (field) {
+						const validate = self.validate(field);
+						return validate && !validate.valid;
+					}
+				);
+				ret.push.apply(ret, elements);
 			});
+	
+			return ret;
 		};
 
 		/**
@@ -795,10 +847,10 @@
 			document.removeEventListener('submit', submitHandler, false);
 
 			// Remove all errors
-			removeAllErrors(selector, settings);
+			removeAllErrors(targets, settings);
 
 			// Remove novalidate attribute
-			removeNoValidate(selector);
+			removeNoValidate(targets);
 
 			// Emit custom event
 			if (settings.emitEvents) {
@@ -821,7 +873,7 @@
 			settings = extend(defaults, options || {});
 
 			// Add novalidate attribute
-			addNoValidate(selector);
+			addNoValidate(targets);
 
 			// Event Listeners
 			document.addEventListener('blur', blurHandler, true);
