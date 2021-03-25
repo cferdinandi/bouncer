@@ -1,309 +1,22 @@
 /*!
  * formbouncerjs v1.4.6
  * A lightweight form validation script that augments native HTML5 form validation elements and attributes.
- * (c) 2019 Chris Ferdinandi
+ * (c) 2021 Chris Ferdinandi
  * MIT License
  * http://github.com/cferdinandi/bouncer
  */
 
-/* jshint ignore:start */
-/*
- * classList.js: Cross-browser full element.classList implementation.
- * 1.1.20170427
- *
- * By Eli Grey, http://eligrey.com
- * License: Dedicated to the public domain.
- *   See https://github.com/eligrey/classList.js/blob/master/LICENSE.md
- */
-
-/*global self, document, DOMException */
-
-/*! @source http://purl.eligrey.com/github/classList.js/blob/master/classList.js */
-
-if ("document" in self) {
-
-	// Full polyfill for browsers with no classList support
-	// Including IE < Edge missing SVGElement.classList
-	if (!("classList" in document.createElement("_"))
-		|| document.createElementNS && !("classList" in document.createElementNS("http://www.w3.org/2000/svg", "g"))) {
-
-		(function (view) {
-
-			"use strict";
-
-			if (!('Element' in view)) return;
-
-			var
-				classListProp = "classList"
-				, protoProp = "prototype"
-				, elemCtrProto = view.Element[protoProp]
-				, objCtr = Object
-				, strTrim = String[protoProp].trim || function () {
-					return this.replace(/^\s+|\s+$/g, "");
-				}
-				, arrIndexOf = Array[protoProp].indexOf || function (item) {
-					var
-						i = 0
-						, len = this.length
-						;
-					for (; i < len; i++) {
-						if (i in this && this[i] === item) {
-							return i;
-						}
-					}
-					return -1;
-				}
-				// Vendors: please allow content code to instantiate DOMExceptions
-				, DOMEx = function (type, message) {
-					this.name = type;
-					this.code = DOMException[type];
-					this.message = message;
-				}
-				, checkTokenAndGetIndex = function (classList, token) {
-					if (token === "") {
-						throw new DOMEx(
-							"SYNTAX_ERR"
-							, "An invalid or illegal string was specified"
-						);
-					}
-					if (/\s/.test(token)) {
-						throw new DOMEx(
-							"INVALID_CHARACTER_ERR"
-							, "String contains an invalid character"
-						);
-					}
-					return arrIndexOf.call(classList, token);
-				}
-				, ClassList = function (elem) {
-					var
-						trimmedClasses = strTrim.call(elem.getAttribute("class") || "")
-						, classes = trimmedClasses ? trimmedClasses.split(/\s+/) : []
-						, i = 0
-						, len = classes.length
-						;
-					for (; i < len; i++) {
-						this.push(classes[i]);
-					}
-					this._updateClassName = function () {
-						elem.setAttribute("class", this.toString());
-					};
-				}
-				, classListProto = ClassList[protoProp] = []
-				, classListGetter = function () {
-					return new ClassList(this);
-				}
-				;
-			// Most DOMException implementations don't allow calling DOMException's toString()
-			// on non-DOMExceptions. Error's toString() is sufficient here.
-			DOMEx[protoProp] = Error[protoProp];
-			classListProto.item = function (i) {
-				return this[i] || null;
-			};
-			classListProto.contains = function (token) {
-				token += "";
-				return checkTokenAndGetIndex(this, token) !== -1;
-			};
-			classListProto.add = function () {
-				var
-					tokens = arguments
-					, i = 0
-					, l = tokens.length
-					, token
-					, updated = false
-					;
-				do {
-					token = tokens[i] + "";
-					if (checkTokenAndGetIndex(this, token) === -1) {
-						this.push(token);
-						updated = true;
-					}
-				}
-				while (++i < l);
-
-				if (updated) {
-					this._updateClassName();
-				}
-			};
-			classListProto.remove = function () {
-				var
-					tokens = arguments
-					, i = 0
-					, l = tokens.length
-					, token
-					, updated = false
-					, index
-					;
-				do {
-					token = tokens[i] + "";
-					index = checkTokenAndGetIndex(this, token);
-					while (index !== -1) {
-						this.splice(index, 1);
-						updated = true;
-						index = checkTokenAndGetIndex(this, token);
-					}
-				}
-				while (++i < l);
-
-				if (updated) {
-					this._updateClassName();
-				}
-			};
-			classListProto.toggle = function (token, force) {
-				token += "";
-
-				var
-					result = this.contains(token)
-					, method = result ?
-						force !== true && "remove"
-						:
-						force !== false && "add"
-					;
-
-				if (method) {
-					this[method](token);
-				}
-
-				if (force === true || force === false) {
-					return force;
-				} else {
-					return !result;
-				}
-			};
-			classListProto.toString = function () {
-				return this.join(" ");
-			};
-
-			if (objCtr.defineProperty) {
-				var classListPropDesc = {
-					get: classListGetter
-					, enumerable: true
-					, configurable: true
-				};
-				try {
-					objCtr.defineProperty(elemCtrProto, classListProp, classListPropDesc);
-				} catch (ex) { // IE 8 doesn't support enumerable:true
-					// adding undefined to fight this issue https://github.com/eligrey/classList.js/issues/36
-					// modernie IE8-MSW7 machine has IE8 8.0.6001.18702 and is affected
-					if (ex.number === undefined || ex.number === -0x7FF5EC54) {
-						classListPropDesc.enumerable = false;
-						objCtr.defineProperty(elemCtrProto, classListProp, classListPropDesc);
-					}
-				}
-			} else if (objCtr[protoProp].__defineGetter__) {
-				elemCtrProto.__defineGetter__(classListProp, classListGetter);
-			}
-
-		}(self));
-
-	}
-
-	// There is full or partial native classList support, so just check if we need
-	// to normalize the add/remove and toggle APIs.
-
-	(function () {
-		"use strict";
-
-		var testElement = document.createElement("_");
-
-		testElement.classList.add("c1", "c2");
-
-		// Polyfill for IE 10/11 and Firefox <26, where classList.add and
-		// classList.remove exist but support only one argument at a time.
-		if (!testElement.classList.contains("c2")) {
-			var createMethod = function (method) {
-				var original = DOMTokenList.prototype[method];
-
-				DOMTokenList.prototype[method] = function (token) {
-					var i, len = arguments.length;
-
-					for (i = 0; i < len; i++) {
-						token = arguments[i];
-						original.call(this, token);
-					}
-				};
-			};
-			createMethod('add');
-			createMethod('remove');
-		}
-
-		testElement.classList.toggle("c3", false);
-
-		// Polyfill for IE 10 and Firefox <24, where classList.toggle does not
-		// support the second argument.
-		if (testElement.classList.contains("c3")) {
-			var _toggle = DOMTokenList.prototype.toggle;
-
-			DOMTokenList.prototype.toggle = function (token, force) {
-				if (1 in arguments && !this.contains(token) === !force) {
-					return force;
-				} else {
-					return _toggle.call(this, token);
-				}
-			};
-
-		}
-
-		testElement = null;
-	}());
-
-}
-/* jshint ignore:end */
-/**
- * Element.closest() polyfill
- * https://developer.mozilla.org/en-US/docs/Web/API/Element/closest#Polyfill
- */
-if (!Element.prototype.closest) {
-	if (!Element.prototype.matches) {
-		Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
-	}
-	Element.prototype.closest = function (s) {
-		var el = this;
-		var ancestor = this;
-		if (!document.documentElement.contains(el)) return null;
-		do {
-			if (ancestor.matches(s)) return ancestor;
-			ancestor = ancestor.parentElement;
-		} while (ancestor !== null);
-		return null;
-	};
-}
-/**
- * CustomEvent() polyfill
- * https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent#Polyfill
- */
-(function () {
-
-	if (typeof window.CustomEvent === "function") return false;
-
-	function CustomEvent(event, params) {
-		params = params || { bubbles: false, cancelable: false, detail: undefined };
-		var evt = document.createEvent('CustomEvent');
-		evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
-		return evt;
-	}
-
-	CustomEvent.prototype = window.Event.prototype;
-
-	window.CustomEvent = CustomEvent;
-})();
-/**
- * Element.matches() polyfill (simple version)
- * https://developer.mozilla.org/en-US/docs/Web/API/Element/matches#Polyfill
- */
-if (!Element.prototype.matches) {
-	Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
-}
 (function (root, factory) {
 	if ( typeof define === 'function' && define.amd ) {
-		define([], (function () {
+		define([], function () {
 			return factory(root);
-		}));
+		});
 	} else if ( typeof exports === 'object' ) {
 		module.exports = factory(root);
 	} else {
 		root.Bouncer = factory(root);
 	}
-})(typeof global !== 'undefined' ? global : typeof window !== 'undefined' ? window : this, (function (window) {
+})(typeof global !== 'undefined' ? global : typeof window !== 'undefined' ? window : this, function (window) {
 
 	'use strict';
 
@@ -317,6 +30,7 @@ if (!Element.prototype.matches) {
 
 		fieldClass: 'error',
 		errorClass: 'error-message',
+		errorTag: 'div',
 		fieldPrefix: 'bouncer-field_',
 		errorPrefix: 'bouncer-error_',
 
@@ -396,7 +110,7 @@ if (!Element.prototype.matches) {
 	 */
 	var extend = function () {
 		var merged = {};
-		forEach(arguments, (function (obj) {
+		forEach(arguments, function (obj) {
 			for (var key in obj) {
 				if (!obj.hasOwnProperty(key)) return;
 				if (Object.prototype.toString.call(obj[key]) === '[object Object]') {
@@ -406,7 +120,7 @@ if (!Element.prototype.matches) {
 				}
 				// merged[key] = obj[key];
 			}
-		}));
+		});
 		return merged;
 	};
 
@@ -430,19 +144,19 @@ if (!Element.prototype.matches) {
 	 * Add the `novalidate` attribute to all forms
 	 * @param {Boolean} remove  If true, remove the `novalidate` attribute
 	 */
-	var addNoValidate = function (selector) {
-		forEach(document.querySelectorAll(selector), (function (form) {
+	var addNoValidate = function (targets) {
+		forEach(targets, function (form) {
 			form.setAttribute('novalidate', true);
-		}));
+		});
 	};
 
 	/**
 	 * Remove the `novalidate` attribute to all forms
 	 */
-	var removeNoValidate = function (selector) {
-		forEach(document.querySelectorAll(selector), (function (form) {
+	var removeNoValidate = function (targets) {
+		forEach(targets, function (form) {
 			form.removeAttribute('novalidate');
-		}));
+		});
 	};
 
 	/**
@@ -465,9 +179,9 @@ if (!Element.prototype.matches) {
 
 		// Handle radio buttons
 		if (field.type === 'radio') {
-			length = Array.prototype.filter.call(field.form.querySelectorAll('[name="' + escapeCharacters(field.name) + '"]'), (function (btn) {
+			length = Array.prototype.filter.call(field.form.querySelectorAll('[name="' + escapeCharacters(field.name) + '"]'), function (btn) {
 				return btn.checked;
-			})).length;
+			}).length;
 		}
 
 		// Check for value
@@ -767,7 +481,7 @@ if (!Element.prototype.matches) {
 	var createError = function (field, settings) {
 
 		// Create the error message
-		var error = document.createElement('div');
+		var error = document.createElement(settings.errorTag);
 		error.className = settings.errorClass;
 		error.id = settings.errorPrefix + getFieldID(field, settings, true);
 
@@ -796,24 +510,48 @@ if (!Element.prototype.matches) {
 
 		// Missing value error
 		if (errors.missingValue) {
-			return messages.missingValue[field.type] || messages.missingValue.default;
+            var msgMissingValue = messages.missingValue[field.type] || messages.missingValue.default;
+            
+            var customMissingValue = field.getAttribute(settings.messageCustom);
+			if (customMissingValue) msgMissingValue = customMissingValue;
+            
+            return msgMissingValue;
 		}
 
 		// Numbers that are out of range
 		if (errors.outOfRange) {
-			return messages.outOfRange[errors.outOfRange].replace('{max}', field.getAttribute('max')).replace('{min}', field.getAttribute('min')).replace('{length}', field.value.length);
+            var msgOutOfRange = messages.outOfRange[errors.outOfRange];
+
+            var customOutOfRange = field.getAttribute(settings.messageCustom);
+			if (customOutOfRange) msgOutOfRange = customOutOfRange;
+
+			return msgOutOfRange
+                .replace('{max}', field.getAttribute('max'))
+                .replace('{min}', field.getAttribute('min'))
+                .replace('{length}', field.value.length);
 		}
 
 		// Values that are too long or short
 		if (errors.wrongLength) {
-			return messages.wrongLength[errors.wrongLength].replace('{maxLength}', field.getAttribute('maxlength')).replace('{minLength}', field.getAttribute('minlength')).replace('{length}', field.value.length);
+            var msgWrongLength = messages.wrongLength[errors.wrongLength];
+            
+            var customWrongLength = field.getAttribute(settings.messageCustom);
+			if (customWrongLength) msgWrongLength = customWrongLength;
+            
+            return msgWrongLength
+                .replace('{maxLength}', field.getAttribute('maxlength'))
+                .replace('{minLength}', field.getAttribute('minlength'))
+                .replace('{length}', field.value.length);
 		}
 
 		// Pattern mismatch error
 		if (errors.patternMismatch) {
-			var custom = field.getAttribute(settings.messageCustom);
-			if (custom) return custom;
-			return messages.patternMismatch[field.type] || messages.patternMismatch.default;
+            var msgPatternMismatch = messages.patternMismatch[field.type] || messages.patternMismatch.default;
+			
+            var customPatternMismatch = field.getAttribute(settings.messageCustom);
+			if (customPatternMismatch) msgPatternMismatch = customPatternMismatch;
+			
+            return msgPatternMismatch
 		}
 
 		// Custom validations
@@ -850,9 +588,9 @@ if (!Element.prototype.matches) {
 
 		// If field is a radio button, add attributes to every button in the group
 		if (field.type === 'radio' && field.name) {
-			Array.prototype.forEach.call(document.querySelectorAll('[name="' + field.name + '"]'), (function (button) {
+			Array.prototype.forEach.call(document.querySelectorAll('[name="' + field.name + '"]'), function (button) {
 				addErrorAttributes(button, error, settings);
-			}));
+			});
 		}
 
 		// Otherwise, add an error class and aria attribute to the field
@@ -907,9 +645,9 @@ if (!Element.prototype.matches) {
 
 		// If field is a radio button, remove attributes from every button in the group
 		if (field.type === 'radio' && field.name) {
-			Array.prototype.forEach.call(document.querySelectorAll('[name="' + field.name + '"]'), (function (button) {
+			Array.prototype.forEach.call(document.querySelectorAll('[name="' + field.name + '"]'), function (button) {
 				removeAttributes(button, settings);
-			}));
+			});
 			return;
 		}
 
@@ -947,12 +685,12 @@ if (!Element.prototype.matches) {
 	 * @param  {String} selector The selector for the form
 	 * @param  {Object} settings The plugin settings
 	 */
-	var removeAllErrors = function (selector, settings) {
-		forEach(document.querySelectorAll(selector), (function (form) {
-			forEach(form.querySelectorAll('input, select, textarea'), (function (field) {
+	var removeAllErrors = function (targets, settings) {
+		forEach(targets, function (form) {
+			forEach(form.querySelectorAll('input, select, textarea'), function (field) {
 				removeError(field, settings);
-			}));
-		}));
+			});
+		});
 	};
 
 	/**
@@ -968,7 +706,7 @@ if (!Element.prototype.matches) {
 
 		var publicAPIs = {};
 		var settings;
-
+		var targets = document.querySelectorAll(selector);
 
 		//
 		// Methods
@@ -1010,10 +748,37 @@ if (!Element.prototype.matches) {
 		 * @return {Array}       An array of fields with errors
 		 */
 		publicAPIs.validateAll = function (target) {
-			return Array.prototype.filter.call(target.querySelectorAll('input, select, textarea'), (function (field) {
-				var validate = publicAPIs.validate(field);
-				return validate && !validate.valid;
-			}));
+			// return Array.prototype.filter.call(target.querySelectorAll('input, select, textarea'), function (field) {
+			// 	var validate = publicAPIs.validate(field);
+			// 	return validate && !validate.valid;
+			// });
+
+			if (target === undefined) { // target is not provided: take initialized targets (Nodelist)
+				target = this.targets;
+			} else { 
+				if (typeof target === "string") { // target is as string selector: get Elements (Nodelist)
+					target = document.querySelectorAll(target);
+				}
+				if (target instanceof Element) { // target is an Element: create array with element for iteration
+					let n = [];
+					n.push(target);
+					target = n;
+				}
+			}
+	
+			let ret = [];
+			this.forEach(target, function(t) {
+				let elements = Array.prototype.filter.call(
+					t.querySelectorAll('input, select, textarea'), 
+					function (field) {
+						const validate = self.validate(field);
+						return validate && !validate.valid;
+					}
+				);
+				ret.push.apply(ret, elements);
+			});
+	
+			return ret;
 		};
 
 		/**
@@ -1090,10 +855,10 @@ if (!Element.prototype.matches) {
 			document.removeEventListener('submit', submitHandler, false);
 
 			// Remove all errors
-			removeAllErrors(selector, settings);
+			removeAllErrors(targets, settings);
 
 			// Remove novalidate attribute
-			removeNoValidate(selector);
+			removeNoValidate(targets);
 
 			// Emit custom event
 			if (settings.emitEvents) {
@@ -1116,7 +881,7 @@ if (!Element.prototype.matches) {
 			settings = extend(defaults, options || {});
 
 			// Add novalidate attribute
-			addNoValidate(selector);
+			addNoValidate(targets);
 
 			// Event Listeners
 			document.addEventListener('blur', blurHandler, true);
@@ -1149,4 +914,291 @@ if (!Element.prototype.matches) {
 
 	return Constructor;
 
-}));
+});
+/* jshint ignore:start */
+/*
+ * classList.js: Cross-browser full element.classList implementation.
+ * 1.1.20170427
+ *
+ * By Eli Grey, http://eligrey.com
+ * License: Dedicated to the public domain.
+ *   See https://github.com/eligrey/classList.js/blob/master/LICENSE.md
+ */
+
+/*global self, document, DOMException */
+
+/*! @source http://purl.eligrey.com/github/classList.js/blob/master/classList.js */
+
+if ("document" in self) {
+
+	// Full polyfill for browsers with no classList support
+	// Including IE < Edge missing SVGElement.classList
+	if (!("classList" in document.createElement("_"))
+		|| document.createElementNS && !("classList" in document.createElementNS("http://www.w3.org/2000/svg", "g"))) {
+
+		(function (view) {
+
+			"use strict";
+
+			if (!('Element' in view)) return;
+
+			var
+				classListProp = "classList"
+				, protoProp = "prototype"
+				, elemCtrProto = view.Element[protoProp]
+				, objCtr = Object
+				, strTrim = String[protoProp].trim || function () {
+					return this.replace(/^\s+|\s+$/g, "");
+				}
+				, arrIndexOf = Array[protoProp].indexOf || function (item) {
+					var
+						i = 0
+						, len = this.length
+						;
+					for (; i < len; i++) {
+						if (i in this && this[i] === item) {
+							return i;
+						}
+					}
+					return -1;
+				}
+				// Vendors: please allow content code to instantiate DOMExceptions
+				, DOMEx = function (type, message) {
+					this.name = type;
+					this.code = DOMException[type];
+					this.message = message;
+				}
+				, checkTokenAndGetIndex = function (classList, token) {
+					if (token === "") {
+						throw new DOMEx(
+							"SYNTAX_ERR"
+							, "An invalid or illegal string was specified"
+						);
+					}
+					if (/\s/.test(token)) {
+						throw new DOMEx(
+							"INVALID_CHARACTER_ERR"
+							, "String contains an invalid character"
+						);
+					}
+					return arrIndexOf.call(classList, token);
+				}
+				, ClassList = function (elem) {
+					var
+						trimmedClasses = strTrim.call(elem.getAttribute("class") || "")
+						, classes = trimmedClasses ? trimmedClasses.split(/\s+/) : []
+						, i = 0
+						, len = classes.length
+						;
+					for (; i < len; i++) {
+						this.push(classes[i]);
+					}
+					this._updateClassName = function () {
+						elem.setAttribute("class", this.toString());
+					};
+				}
+				, classListProto = ClassList[protoProp] = []
+				, classListGetter = function () {
+					return new ClassList(this);
+				}
+				;
+			// Most DOMException implementations don't allow calling DOMException's toString()
+			// on non-DOMExceptions. Error's toString() is sufficient here.
+			DOMEx[protoProp] = Error[protoProp];
+			classListProto.item = function (i) {
+				return this[i] || null;
+			};
+			classListProto.contains = function (token) {
+				token += "";
+				return checkTokenAndGetIndex(this, token) !== -1;
+			};
+			classListProto.add = function () {
+				var
+					tokens = arguments
+					, i = 0
+					, l = tokens.length
+					, token
+					, updated = false
+					;
+				do {
+					token = tokens[i] + "";
+					if (checkTokenAndGetIndex(this, token) === -1) {
+						this.push(token);
+						updated = true;
+					}
+				}
+				while (++i < l);
+
+				if (updated) {
+					this._updateClassName();
+				}
+			};
+			classListProto.remove = function () {
+				var
+					tokens = arguments
+					, i = 0
+					, l = tokens.length
+					, token
+					, updated = false
+					, index
+					;
+				do {
+					token = tokens[i] + "";
+					index = checkTokenAndGetIndex(this, token);
+					while (index !== -1) {
+						this.splice(index, 1);
+						updated = true;
+						index = checkTokenAndGetIndex(this, token);
+					}
+				}
+				while (++i < l);
+
+				if (updated) {
+					this._updateClassName();
+				}
+			};
+			classListProto.toggle = function (token, force) {
+				token += "";
+
+				var
+					result = this.contains(token)
+					, method = result ?
+						force !== true && "remove"
+						:
+						force !== false && "add"
+					;
+
+				if (method) {
+					this[method](token);
+				}
+
+				if (force === true || force === false) {
+					return force;
+				} else {
+					return !result;
+				}
+			};
+			classListProto.toString = function () {
+				return this.join(" ");
+			};
+
+			if (objCtr.defineProperty) {
+				var classListPropDesc = {
+					get: classListGetter
+					, enumerable: true
+					, configurable: true
+				};
+				try {
+					objCtr.defineProperty(elemCtrProto, classListProp, classListPropDesc);
+				} catch (ex) { // IE 8 doesn't support enumerable:true
+					// adding undefined to fight this issue https://github.com/eligrey/classList.js/issues/36
+					// modernie IE8-MSW7 machine has IE8 8.0.6001.18702 and is affected
+					if (ex.number === undefined || ex.number === -0x7FF5EC54) {
+						classListPropDesc.enumerable = false;
+						objCtr.defineProperty(elemCtrProto, classListProp, classListPropDesc);
+					}
+				}
+			} else if (objCtr[protoProp].__defineGetter__) {
+				elemCtrProto.__defineGetter__(classListProp, classListGetter);
+			}
+
+		}(self));
+
+	}
+
+	// There is full or partial native classList support, so just check if we need
+	// to normalize the add/remove and toggle APIs.
+
+	(function () {
+		"use strict";
+
+		var testElement = document.createElement("_");
+
+		testElement.classList.add("c1", "c2");
+
+		// Polyfill for IE 10/11 and Firefox <26, where classList.add and
+		// classList.remove exist but support only one argument at a time.
+		if (!testElement.classList.contains("c2")) {
+			var createMethod = function (method) {
+				var original = DOMTokenList.prototype[method];
+
+				DOMTokenList.prototype[method] = function (token) {
+					var i, len = arguments.length;
+
+					for (i = 0; i < len; i++) {
+						token = arguments[i];
+						original.call(this, token);
+					}
+				};
+			};
+			createMethod('add');
+			createMethod('remove');
+		}
+
+		testElement.classList.toggle("c3", false);
+
+		// Polyfill for IE 10 and Firefox <24, where classList.toggle does not
+		// support the second argument.
+		if (testElement.classList.contains("c3")) {
+			var _toggle = DOMTokenList.prototype.toggle;
+
+			DOMTokenList.prototype.toggle = function (token, force) {
+				if (1 in arguments && !this.contains(token) === !force) {
+					return force;
+				} else {
+					return _toggle.call(this, token);
+				}
+			};
+
+		}
+
+		testElement = null;
+	}());
+
+}
+/* jshint ignore:end */
+/**
+ * Element.closest() polyfill
+ * https://developer.mozilla.org/en-US/docs/Web/API/Element/closest#Polyfill
+ */
+if (!Element.prototype.closest) {
+	if (!Element.prototype.matches) {
+		Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
+	}
+	Element.prototype.closest = function (s) {
+		var el = this;
+		var ancestor = this;
+		if (!document.documentElement.contains(el)) return null;
+		do {
+			if (ancestor.matches(s)) return ancestor;
+			ancestor = ancestor.parentElement;
+		} while (ancestor !== null);
+		return null;
+	};
+}
+/**
+ * CustomEvent() polyfill
+ * https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent#Polyfill
+ */
+(function () {
+
+	if (typeof window.CustomEvent === "function") return false;
+
+	function CustomEvent(event, params) {
+		params = params || { bubbles: false, cancelable: false, detail: undefined };
+		var evt = document.createEvent('CustomEvent');
+		evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
+		return evt;
+	}
+
+	CustomEvent.prototype = window.Event.prototype;
+
+	window.CustomEvent = CustomEvent;
+})();
+/**
+ * Element.matches() polyfill (simple version)
+ * https://developer.mozilla.org/en-US/docs/Web/API/Element/matches#Polyfill
+ */
+if (!Element.prototype.matches) {
+	Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
+}

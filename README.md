@@ -173,16 +173,16 @@ You can use your own validation pattern for a field with the `pattern` attribute
 <input type="text" name="tel" pattern="\d{3}[\-]\d{3}[\-]\d{4}">
 ```
 
-### Custom Pattern Mismatch Error Messages
+### Custom Error Messages
 
-Show custom errors for pattern mismatches by adding the `[data-bouncer-message]` attribute to the field.
+Show custom errors for by adding the `[data-bouncer-message]` attribute to the field.
 
 ```html
 <!-- Phone number be in 555-555-5555 format -->
 <input type="text" name="tel" pattern="\d{3}[\-]\d{3}[\-]\d{4}" data-bouncer-message="Please use the following format: 555-555-5555">
+<!-- Text is required -->
+<input type="text" name="text" data-bouncer-message="Text is required" required>
 ```
-
-
 
 ## Error Styling
 
@@ -317,6 +317,7 @@ var validate = new Bouncer('form', {
 
 	// Classes & IDs
 	fieldClass: 'error', // Applied to fields with errors
+	errorTag: 'div', // HTML tag to be rendered for error message
 	errorClass: 'error-message', // Applied to the error message for invalid fields
 	fieldPrefix: 'bouncer-field_', // If a field doesn't have a name or ID, one is generated with this prefix
 	errorPrefix: 'bouncer-error_', // Prefix used for error message IDs
@@ -468,7 +469,7 @@ bouncer.validate(field, {
 
 #### `validateAll()`
 
-Validate all fields in a form or fieldset. Pass in the section as an argument. Returns an array of fields with errors.
+Validate all fields in a form or fieldset. Pass in either a selector (string), a Nodelist or an Element as argument. Without passing an argument, the initial target list (selector) will be used. Returns an array of fields with errors.
 
 ```js
 // Get a fieldset
@@ -477,6 +478,14 @@ var fieldset = document.querySelector('#fieldset');
 // Validate the field
 var bouncer = new Bouncer();
 var areValid = bouncer.validateAll(fieldset);
+```
+
+or
+
+```js
+// Validate all fields of the initial selector
+var bouncer = new Bouncer('form');
+var areValid = bouncer.validateAll();
 ```
 
 #### `destroy()`
