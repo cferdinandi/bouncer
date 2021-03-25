@@ -113,6 +113,19 @@ class Bouncer {
         // Validate the field
         this.validate(event.target);
 
+		// Validate complete form silently, to see if it's valid and emit appropriate event
+		const errors = this.validateAll(event.target.form, true);
+		if (errors.length > 0) {
+			this.emitEvent(event.target, 'bouncerFormInvalid', { 
+                errors: errors,
+				form: event.target.form
+            });
+		} else {
+			this.emitEvent(event.target, 'bouncerFormValid', { 
+				form: event.target.form 
+			});
+		}
+		
     };
 
     /**
@@ -128,7 +141,21 @@ class Bouncer {
 
         // Validate the field
         this.validate(event.target);
-    };
+
+		// Validate complete form silently, to see if it's valid and emit appropriate event
+		const errors = this.validateAll(event.target.form, true);
+		if (errors.length > 0) {
+			this.emitEvent(event.target, 'bouncerFormInvalid', { 
+				errors: errors,
+				form: event.target.form
+			});
+		} else {
+			this.emitEvent(event.target, 'bouncerFormValid', { 
+				form: event.target.form 
+			});
+		}
+		
+	};
 
     /**
      * Validate an entire form when it's submitted
@@ -160,17 +187,20 @@ class Bouncer {
 
         // Emit custom event
         if (this.settings.emitEvents) {
-            this.emitEvent(event.target, 'bouncerFormValid');
+            this.emitEvent(event.target, 'bouncerFormValid', { 
+				form: event.target
+			});
         }
     };
 
     /**
      * Validate a field
-     * @param  {Node}   field     The field to validate
-     * @param  {Object} options   Validation options
-     * @return {Object}           The validity state and errors
+     * @param  {Node}    field     The field to validate
+     * @param  {Object}  options   Validation options
+     * @param  {boolean} silent    Check silently, no error messages are shown
+     * @return {Object}            The validity state and errors
      */
-    validate(field, options) {
+    validate(field, options, silent) {
 
         // Don't validate submits, buttons, file and reset inputs, and disabled and readonly fields
         if (field.disabled || field.readOnly || field.type === 'reset' || field.type === 'submit' || field.type === 'button') return;
@@ -184,21 +214,24 @@ class Bouncer {
         // If valid, remove any error messages
         if (isValid.valid) {
             this.removeError(field, _settings);
-            return;
+            return isValid;
         }
 
         // Otherwise, show an error message
-        this.showError(field, isValid.errors, _settings);
+        if (!silent) {
+			this.showError(field, isValid.errors, _settings);
+		}
 
         return isValid;
     };
 
     /**
      * Validate all fields in a form or section
-     * @param  {Node} target The form(s) or section(s) to validate fields in, if 'undefined' initialized targets will be used
-     * @return {Array}       An array of fields with errors
+     * @param  {Node} 	 target The form(s) or section(s) to validate fields in, if 'undefined' initialized targets will be used
+     * @param  {boolean} silent Check silently, no error messages are shown
+     * @return {Array}   An array of fields with errors
      */
-    validateAll(target) {
+    validateAll(target, silent) {
         const self = this;
 
 		if (target === undefined) { // target is not provided: take initialized targets (Nodelist)
@@ -219,7 +252,7 @@ class Bouncer {
 			let elements = Array.prototype.filter.call(
 				t.querySelectorAll('input, select, textarea'), 
 				function (field) {
-					const validate = self.validate(field);
+					const validate = self.validate(field, null, silent);
 					return validate && !validate.valid;
 				}
 			);

@@ -73,6 +73,12 @@
 				width: auto;
 			}
 
+			.button:disabled,
+			.button:disabled:hover {
+				background-color: #ccc;
+				border: 1px solid #ccc;
+			}
+
 			.button:active,
 			.button:focus,
 			.button:hover {
@@ -119,7 +125,11 @@
 						<input type="text" name="text" id="text" 
                                data-bouncer-message="Text is required" required>
 					</div>
-                    <input type="submit" class="button" value="Submit">
+					<div>
+						<label for="number">Number</label>
+						<input type="number" name="number" id="number" required>
+					</div>
+                    <input type="submit" class="button" value="Submit" disabled>
                 </form>
             </section>
 
@@ -157,13 +167,15 @@
 					<div>
 						<!-- Regex: https://gist.github.com/badsyntax/719800 -->
 						<label for="email">Email</label>
-						<input type="email" name="email" id="email" data-bouncer-message="The domain portion of the email address is invalid (the portion after the @)." required>
+						<input type="email" name="email" id="email" 
+							   data-bouncer-message="The domain portion of the email address is invalid (the portion after the @)." required>
 					</div>
 
 					<div>
 						<!-- Regex: https://gist.github.com/dperini/729294 -->
 						<label for="url">URL</label>
-						<input type="url" name="url" id="url" data-bouncer-message="The URL is a missing a TLD (for example, .com)." required>
+						<input type="url" name="url" id="url" 
+							   data-bouncer-message="The URL is a missing a TLD (for example, .com)." required>
 					</div>
 
 					<div>
@@ -194,12 +206,16 @@
 
 					<div>
 						<label for="password">Password <span class="pattern">At least 1 uppercase character, 1 lowercase character, and 1 number</span></label>
-						<input type="password" name="password" id="password" data-bouncer-message="Please choose a password that includes at least 1 uppercase character, 1 lowercase character, and 1 number." pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s).*" required>
+						<input type="password" name="password" id="password" 
+						       data-bouncer-message="Please choose a password that includes at least 1 uppercase character, 1 lowercase character, and 1 number." 
+							   pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s).*" required>
 					</div>
 
 					<div>
 						<label for="confirm-password">Confirm Password <span class="pattern">must match the field above</span></label>
-						<input type="password" name="confirm-password" id="confirm-password" data-bouncer-match="#password" data-bouncer-mismatch-message="Your passwords do not match." required>
+						<input type="password" name="confirm-password" id="confirm-password" 
+							   data-bouncer-match="#password" 
+							   data-bouncer-mismatch-message="Your passwords do not match." required>
 					</div>
 
 					<div>
@@ -296,13 +312,14 @@
 
 			document.addEventListener('bouncerFormInvalid', function (event) {
 				console.log(event.detail.errors);
+				document.querySelector('#' + event.detail.form.id + ' input[type=submit]').disabled = true;
 				// console.log(event.detail.errors[0].offsetTop);
 				// window.scrollTo(0, event.detail.errors[0].offsetTop);
 			}, false);
 
-			document.addEventListener('bouncerFormValid', function () {
-				alert('Form submitted successfully!');
-				window.location.reload();
+			document.addEventListener('bouncerFormValid', function (event) {
+				console.log('Form "' + event.detail.form.id + '" is valid!');
+				document.querySelector('#' + event.detail.form.id + ' input[type=submit]').disabled = false;
 			}, false);
 
             //TEST
