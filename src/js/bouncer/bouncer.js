@@ -758,9 +758,6 @@
 			// Only run on matching elements
 			if (!event.target.matches(selector)) return;
 
-			// Prevent form submission
-			event.preventDefault();
-
 			// Validate each field
 			var errors = publicAPIs.validateAll(event.target);
 
@@ -768,17 +765,18 @@
 			if (errors.length > 0) {
 				errors[0].focus();
 				emitEvent(event.target, 'bouncerFormInvalid', {errors: errors});
-				return;
-			}
-
-			// Otherwise, submit if not disabled
-			if (!settings.disableSubmit) {
-				event.target.submit();
+				event.preventDefault();
+				return false;
 			}
 
 			// Emit custom event
 			if (settings.emitEvents) {
 				emitEvent(event.target, 'bouncerFormValid');
+			}
+
+			// Prevent form submission if disabled
+			if (settings.disableSubmit) {
+				event.preventDefault();
 			}
 
 		};
