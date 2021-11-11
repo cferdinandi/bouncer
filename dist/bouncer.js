@@ -1,7 +1,7 @@
 /*!
  * formbouncerjs v1.4.6
  * A lightweight form validation script that augments native HTML5 form validation elements and attributes.
- * (c) 2019 Chris Ferdinandi
+ * (c) 2021 Chris Ferdinandi
  * MIT License
  * http://github.com/cferdinandi/bouncer
  */
@@ -669,6 +669,28 @@
 	};
 
 	/**
+	 * Add attributes to a valid field
+	 * @param  {Node}   field    The field with the error message
+	 * @param  {Object} settings The plugin settings
+	 */
+	var addValidAttributes = function (field, settings) {
+		if (settings.fieldValidClass) {
+			field.classList.add(settings.fieldValidClass);
+		}
+	};
+
+	/**
+	 * Remove attributes from a valid field
+	 * @param  {Node}   field    The field with the error message
+	 * @param  {Object} settings The plugin settings
+	 */
+	var removeValidAttributes = function (field, settings) {
+		if (settings.fieldValidClass) {
+			field.classList.remove(settings.fieldValidClass);
+		}
+	};
+
+	/**
 	 * The plugin constructor
 	 * @param {String} selector The selector to use for forms to be validated
 	 * @param {Object} options  User settings [optional]
@@ -707,8 +729,12 @@
 			// If valid, remove any error messages
 			if (isValid.valid) {
 				removeError(field, _settings);
+				addValidAttributes(field, _settings);
 				return;
 			}
+
+			// Remove valid attributes
+			removeValidAttributes(field, _settings);
 
 			// Otherwise, show an error message
 			showError(field, isValid.errors, _settings);
