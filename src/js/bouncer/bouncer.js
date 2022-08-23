@@ -758,6 +758,9 @@
 			// Only run on matching elements
 			if (!event.target.matches(selector)) return;
 
+            // skip validation if button with class .skip-validation is clicked
+            if (event.submitter && event.submitter.classList.contains('skip-validation')) return;
+
 			// Prevent form submission
 			event.preventDefault();
 
