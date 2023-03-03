@@ -7,8 +7,8 @@ A lightweight form validation script that augments native HTML5 form validation 
 
 **Features:**
 
-- Fields validate on blur (as the user moves out of them), which data shows is the best time for cognitive load.
-- The entire form is validated on submit.
+- Fields validate on `blur` (as the user moves out of them), which data shows is the best time for cognitive load.
+- The entire form is validated on `submit`.
 - Fields with errors are revalidated as the user types. Errors are removed the instant the field is valid.
 - Supports custom validation patterns and error messages.
 
@@ -211,7 +211,7 @@ Need a starting point? Here's some really lightweight CSS you can use.
 
 Bouncer captures four different types of field errors:
 
-- **`missingValue`** errors occur when a `required` field has no value (or for checkboxes and radio buttons, nothing is selected).
+- **`missingValue`** errors occur when a `required` field has no value (or, for checkboxes and radio buttons, when nothing is selected).
 - **`patternMismatch`** errors occur when a value doesn't match the expected pattern for a particular input type, or a pattern provided by the `pattern` attribute.
 - **`outOfRange`** errors occur when a number is above or below the `min` or `max` values.
 - **`wrongLength`** errors occur when the input is longer or shorter than the `minlength` and `maxlength` values.
@@ -252,7 +252,7 @@ var validate = new Bouncer('form', {
 
 Add an error message for the custom validation by including the `messages` object in your options.
 
-The key should be the same as your custom validation. It's value can be a string, or a function that returns a string. Message functions can accept two arguments: the field being validated and the settings for the current instantiation.
+The key should be the same as your custom validation. Its value can be a string, or a function that returns a string. Message functions can accept two arguments: the field being validated and the settings for the current instantiation.
 
 ```js
 var validate = new Bouncer('form', {
@@ -310,7 +310,7 @@ But if you want to customize things, it also has a robust API that provides mult
 
 ### Options and Settings
 
-You can customize validation patterns, error messages, and more by passing and options object into Bouncer during instantiation.
+You can customize validation patterns, error messages, and more by passing an `options` object into Bouncer during instantiation.
 
 ```js
 var validate = new Bouncer('form', {
@@ -387,7 +387,7 @@ Bouncer emits five custom events:
 - `bouncerInitialized` is emitted when bouncer initializes.
 - `bouncerDestroy` is emitted when bouncer is destroyed.
 
-You can listen for these events with `addEventListener`. All five events bubble up the DOM. The `event.target` is the field or form (or document, when initializing and destroying).
+You can listen for these events with `addEventListener`. All five events bubble up the DOM. The `event.target` is the field or `form` (or `document`, when initializing and destroying).
 
 ```js
 // Detect show error events
@@ -468,7 +468,7 @@ bouncer.validate(field, {
 
 #### `validateAll()`
 
-Validate all fields in a form or fieldset. Pass in the section as an argument. Returns an array of fields with errors.
+Validate all fields in a `form` or `fieldset`. Pass in the section as an argument. Returns an array of fields with errors.
 
 ```js
 // Get a fieldset
